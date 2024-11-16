@@ -377,6 +377,10 @@ function Packersmovershome() {
 
     if (!pickupLocation || !dropLocation || !mobilenumber || !shiftingdate) {
       alert("Please enter all fields");
+    }
+    if (!/^\d{10}$/.test(mobilenumber)) {
+      alert("Please enter a valid 10-digit mobile number.");
+      return;
     } else {
       setLoading(true);
       try {
@@ -828,13 +832,20 @@ function Packersmovershome() {
                 className="poppins-black"
                 placeholder="Enter Contact Details"
                 value={mobilenumber}
+                // onChange={(e) => {
+                //   // Only allow digits (0-9) to be entered
+                //   const value = e.target.value;
+                //   if (/^\d*$/.test(value)) {
+                //     setMobilenumber(value);
+                //   }
+                // }}
                 onChange={(e) => {
-                  // Only allow digits (0-9) to be entered
                   const value = e.target.value;
-                  if (/^\d*$/.test(value)) {
+                  if (/^\d{0,10}$/.test(value)) {
                     setMobilenumber(value);
                   }
                 }}
+                maxLength="10"
                 style={{
                   color: "grey",
                   fontSize: "12px",

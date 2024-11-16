@@ -260,28 +260,14 @@ function Phome() {
   };
   const totalItems = calculateQty();
 
-  // Update this function to handle active subcategory
   const handleSubcategoryClick = (subcategory) => {
-    // Toggle logic: if the subcategory clicked is the active one, collapse it, otherwise expand the new one
     setActiveSubcategory((prevSubcategory) =>
       prevSubcategory === subcategory ? null : subcategory
     );
   };
 
-  // const handleCategoryClick = (category) => {
-  //   setActiveCategory(category);
-
-  //   // Scroll to the corresponding category heading
-  //   if (categoryRefs.current[category]) {
-  //     categoryRefs.current[category].scrollIntoView({
-  //       behavior: "smooth",
-  //       block: "start",
-  //     });
-  //   }
-  // };
-
   const handleCategoryClick = (category) => {
-    setActiveCategory(category); // Set the active category
+    setActiveCategory(category);
   };
 
   const handleAddToCart = (item, category, subcategory) => {
@@ -321,38 +307,6 @@ function Phome() {
   const filteredItems = itemsData.filter((item) =>
     item.itemname.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  // const groupedItems = filteredItems.reduce((acc, item) => {
-  //   const {
-  //     category,
-  //     subcategory,
-  //     _id,
-  //     itemname,
-  //     offerPrice,
-  //     volume,
-  //     weight,
-  //     packingPrice,
-  //   } = item;
-
-  //   if (!acc[category]) {
-  //     acc[category] = {};
-  //   }
-
-  //   if (!acc[category][subcategory]) {
-  //     acc[category][subcategory] = [];
-  //   }
-
-  //   acc[category][subcategory].push({
-  //     _id,
-  //     itemname,
-  //     offerPrice,
-  //     volume,
-  //     weight,
-  //     packingPrice,
-  //   });
-
-  //   return acc;
-  // }, {});
 
   const groupedItems = filteredItems.reduce((acc, item) => {
     const {
@@ -568,6 +522,8 @@ function Phome() {
     appliedValue !== null
       ? appliedValue.toFixed(2) // Use appliedValue if a coupon is applied
       : GrandTotal.toFixed(2);
+
+  console.log("distanceInKm", distanceInKm);
 
   const handleSubmit1 = async (e) => {
     e.preventDefault();

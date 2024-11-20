@@ -1620,7 +1620,7 @@ function Subcategory() {
                                     }
                                   }}
                                 >
-                                  Add
+                                  Get free estimate
                                 </div>
                               </div>
                             </div>
@@ -2143,18 +2143,19 @@ function Subcategory() {
                                 }}
                               >
                                 <div
-                                  className="poppins-black"
+                                  className=""
                                   style={{
                                     color: "white",
-                                    fontSize: "13px",
+                                    fontSize: "10px",
                                     backgroundColor: "darkred",
                                     textAlign: "center",
-
                                     padding: "4px",
                                     borderRadius: "10px",
                                     width: "50%",
                                     marginTop: "-25px",
                                     cursor: "pointer",
+                                    fontWeight: "bold",
+                                    // fontFamily: "poppins",
                                   }}
                                   // onClick={() => {
                                   //   if (data.morepriceData.length > 0) {
@@ -2202,7 +2203,7 @@ function Subcategory() {
                                     }
                                   }}
                                 >
-                                  Add
+                                  Get free estimate
                                 </div>
                               </div>
                             </div>

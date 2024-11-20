@@ -273,14 +273,14 @@ function Phome() {
   const handleAddToCart = (item, category, subcategory) => {
     dispatch(
       addToPMCart({
-        id: item._id,
+        id: item?._id,
         category: category,
         subcategory: subcategory,
-        itemname: item.itemname,
-        volume: item.volume,
-        weight: item.weight,
-        offerPrice: item.offerPrice,
-        packingPrice: item.packingPrice,
+        itemname: item?.itemname,
+        volume: item?.volume,
+        weight: item?.weight,
+        offerPrice: item?.offerPrice,
+        packingPrice: item?.packingPrice,
       })
     );
     setActiveSubcategory(!activeCategory);
@@ -657,7 +657,7 @@ function Phome() {
 
   useEffect(() => {
     if (categoryData.length > 0) {
-      setActiveCategory(categoryData[0].category);
+      setActiveCategory(categoryData[0]?.category);
     }
   }, [categoryData]);
 

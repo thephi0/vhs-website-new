@@ -43,6 +43,13 @@ function Summary() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [datepicker, setdatePicker] = useState(false);
 
+  const localutm = localStorage.getItem("utm_source");
+  console.log("localutm", localutm);
+  const localutmcampaign = localStorage.getItem("utm_campaign");
+  console.log("localutmcampaign", localutmcampaign);
+  const localutmcontent = localStorage.getItem("utm_content");
+  console.log("localutmcontent", localutmcontent);
+
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedPlaceAddress, setSelectedPlaceAddress] = useState("");
   const autocompleteRef = useRef(null);
@@ -673,6 +680,9 @@ function Summary() {
             totalSaved: Math.abs(plan?.pofferprice - plan?.pPrice),
             markerCoordinate: selectedLocation,
             deliveryAddress: selectedAddress,
+            reference1: localutm,
+            reference2: localutmcampaign,
+            reference3: localutmcontent,
           },
         };
 
@@ -899,6 +909,7 @@ function Summary() {
     number: "8951592630",
     MUID: "MUID" + Date.now(),
     transactionId: "T" + Date.now(),
+
   };
 
   const handlePayment = async (e) => {
@@ -974,6 +985,9 @@ function Summary() {
         number: "8951592630",
         MUID: "MUID" + Date.now(),
         transactionId: "T" + Date.now(),
+        reference1: localutm,
+        reference2: localutmcampaign,
+        reference3: localutmcontent,
       };
 
       const updatedRedirectUrl = `https://api.vijayhomeservicebengaluru.in/api/payment/handlepaystatus/${paydata1.transactionId}/${paydata1.userId}/${paydata1.serviceID}`;

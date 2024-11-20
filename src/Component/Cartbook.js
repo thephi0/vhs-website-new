@@ -56,6 +56,13 @@ function Cartbook() {
   const [selectedAddress, setSelectedAddress] = useState({});
   const [showbutton, setshowbutton] = useState(false);
 
+  const localutm = localStorage.getItem("utm_source");
+  console.log("localutm", localutm);
+  const localutmcampaign = localStorage.getItem("utm_campaign");
+  console.log("localutmcampaign", localutmcampaign);
+  const localutmcontent = localStorage.getItem("utm_content");
+  console.log("localutmcontent", localutmcontent);
+
   const utm_source = localStorage.getItem("utm_source");
   const storedQuery = localStorage.getItem("fullQuery");
 
@@ -865,6 +872,9 @@ function Cartbook() {
         MUID: "MUID" + Date.now(),
         transactionId: "T" + Date.now(),
         reference: utm_source ? utm_source : storedQuery,
+        reference1: localutm,
+        reference2: localutmcampaign,
+        reference3: localutmcontent,
       };
 
       const updatedRedirectUrl = `https://api.vijayhomeservicebengaluru.in/api/payment/handlepaystatus/${paydata1.transactionId}/${paydata1.userId}/${paydata1.serviceID}`;
@@ -1006,6 +1016,9 @@ function Cartbook() {
             totalSaved: SavedAmount,
             markerCoordinate: selectedAddress?.markerCoordinate,
             deliveryAddress: selectedAddress,
+            reference1: localutm,
+            reference2: localutmcampaign,
+            reference3: localutmcontent,
           },
         };
 

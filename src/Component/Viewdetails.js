@@ -40,7 +40,9 @@ function Viewdetails() {
   const { subcategory, city } = location.state || {};
   const localstoragecitys = localStorage.getItem("city");
   const Tagdata = localStorage.getItem("Tag");
-  console.log("Tagdata", Tagdata);
+  const [mainContact, setmainContact] = useState("");
+
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const currentURLdata = localStorage.getItem("currentURL");
 
@@ -123,8 +125,6 @@ function Viewdetails() {
     getsvideo();
   }, []);
 
-  console.log("subcategory?.serviceName", subcategory?.serviceName);
-
   const addEnquiry = async (e) => {
     e.preventDefault();
 
@@ -154,6 +154,7 @@ function Viewdetails() {
             comment: comment,
             intrestedfor: subcategory?.serviceName,
             Tag: Tagdata,
+            amount: selecteddata?.pofferprice,
 
             // interestedFor: serviceName,
             // serviceID: serviceId,
@@ -442,6 +443,8 @@ function Viewdetails() {
           reference4: localutmcontent,
           intrestedfor: subcategory?.serviceName,
           Tag: Tagdata,
+          amount: selecteddata?.pofferprice,
+
           // interestedFor
         },
       };
@@ -451,6 +454,7 @@ function Viewdetails() {
       if (response.status === 200) {
         setenquiryshow(false);
         addenquiryfollowup1(response.data.data);
+        window.location.assign("/thankyou");
         // alert("Enquiry added successfully");
       } else {
         alert(`Unexpected response: ${response.status}`);
@@ -498,6 +502,44 @@ function Viewdetails() {
       console.error(error);
 
       alert("Failed to booking.Please try again later...");
+    }
+  };
+
+  const sendOTP = async () => {
+    // Validate mobile number
+    const isValidMobile = /^[6-9]\d{9}$/.test(mainContact);
+    if (!isValidMobile) {
+      alert("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "https://api.vijayhomeservicebengaluru.in/api/sendotp/sendByCartBookweb",
+        {
+          mainContact: mainContact,
+          // customerName: customername,
+          reference1: localutm,
+          reference2: localutmcampaign,
+          reference3: localutmcontent,
+          Tag: Tagdata,
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Successful login");
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        setShowLoginModal(false); // Close the modal
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        alert(error.response.data.error);
+      } else if (error.message) {
+        alert(`Error: ${error.message}`);
+      } else {
+        alert("An unknown error occurred. Please try again.");
+      }
+      console.error("Error details:", error);
     }
   };
 
@@ -568,8 +610,11 @@ function Viewdetails() {
                 <div style={{ marginLeft: "40px" }}>
                   <a
                     // href="https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon"
-                    href={`https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon.%20${encodeURIComponent(
-                      currentURLdata
+                    // href={`https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon.%20${encodeURIComponent(
+                    //   currentURLdata
+                    // )}`}
+                    href={`https://wa.me/919611600990?text=${encodeURIComponent(
+                      `Hi, I'm looking for the services related to ${subcategory?.serviceName}. Please reach out to me soon. URL: ${currentURLdata}`
                     )}`}
                     style={{
                       textDecoration: "none",
@@ -870,14 +915,29 @@ function Viewdetails() {
                               //   handleItemClick1(price);
                               // }}
                               onClick={() => {
-                                if (subcategory?.category === "Painting") {
-                                  handleenquiryShow();
-                                  handleselectdatas(price);
+                                const user = localStorage.getItem("user");
+
+                                if (!user) {
+                                  setShowLoginModal(true);
                                 } else {
-                                  handleviewselect(subcategory);
-                                  handleItemClick1(price);
+                                  if (subcategory?.category === "Painting") {
+                                    handleenquiryShow();
+                                    handleselectdatas(price);
+                                  } else {
+                                    handleviewselect(subcategory);
+                                    handleItemClick1(price);
+                                  }
                                 }
                               }}
+                              // onClick={() => {
+                              //   if (subcategory?.category === "Painting") {
+                              //     handleenquiryShow();
+                              //     handleselectdatas(price);
+                              //   } else {
+                              //     handleviewselect(subcategory);
+                              //     handleItemClick1(price);
+                              //   }
+                              // }}
                               style={{
                                 bottom: 10,
                                 width: "100%",
@@ -892,7 +952,7 @@ function Viewdetails() {
                               }}
                             >
                               {subcategory?.category === "Painting"
-                                ? "Free Estimate"
+                                ? "Free inspection"
                                 : "Add"}
                             </button>
                           )}
@@ -1313,7 +1373,7 @@ function Viewdetails() {
               <></>
             )}
 
-            {subcategory?.category === "Painting" ? (
+            {/* {subcategory?.category === "Painting" ? (
               <div
                 onClick={handleenquiryShow}
                 className="poppins-black mt-4"
@@ -1331,7 +1391,7 @@ function Viewdetails() {
               </div>
             ) : (
               ""
-            )}
+            )} */}
 
             <div className="row">
               <div className="col-md-6">
@@ -1760,6 +1820,169 @@ function Viewdetails() {
             }}
           >
             {!loading ? "Submit" : "Loading..."}
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      {/* Login Modal */}
+
+      <Modal
+        show={showLoginModal}
+        centered
+        onHide={() => setShowLoginModal(false)} // Close modal
+        style={{ borderRadius: "10px" }}
+      >
+        <Modal.Body
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "30px",
+          }}
+        >
+          <div style={{ width: "100%", maxWidth: "400px" }}>
+            <div
+              className="poppins-light"
+              style={{
+                marginBottom: "10px",
+                fontSize: "16px",
+                color: "black",
+                fontWeight: "bold",
+              }}
+            >
+              Enter mobile number to continue
+            </div>
+            {/* <input
+                      type="text"
+                      value={customername}
+                      onChange={(e) => setcustomername(e.target.value)}
+                      placeholder="Enter Name"
+                      style={{
+                        border: "1px solid grey",
+                        height: "45px",
+                        width: "100%",
+                        marginTop: "15px",
+                      }}
+                    /> */}
+
+            <input
+              type="text"
+              value={mainContact}
+              onChange={(e) => setmainContact(e.target.value)}
+              placeholder="Enter Mobile Number"
+              style={{
+                border: "1px solid grey",
+                height: "45px",
+                width: "100%",
+              }}
+            />
+            <div
+              onClick={sendOTP}
+              style={{
+                backgroundColor: "#ff465e",
+                color: "white",
+                textAlign: "center",
+                padding: "10px",
+                borderRadius: "5px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontWeight: "bold",
+              }}
+            >
+              Continue
+            </div>
+            <div
+              style={{
+                textAlign: "center",
+                marginTop: "20px",
+                fontSize: "14px",
+                color: "#999",
+              }}
+            >
+              Why to choose{" "}
+              <span className="poppins-regular" style={{ color: "darkred" }}>
+                Our Services?
+              </span>
+              <ul
+                style={{
+                  listStyle: "none",
+                  padding: 0,
+                  marginTop: "10px",
+                }}
+              >
+                <li
+                  style={{
+                    marginBottom: "5px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <i
+                    className="fa fa-check-circle"
+                    style={{ color: "green", marginRight: "5px" }}
+                  ></i>
+                  Lowest Price Guaranteed
+                </li>
+                <li
+                  style={{
+                    marginBottom: "5px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <i
+                    className="fa fa-check-circle"
+                    style={{ color: "green", marginRight: "5px" }}
+                  ></i>
+                  Free Reschedule
+                </li>
+                <li
+                  style={{
+                    marginBottom: "5px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <i
+                    className="fa fa-check-circle"
+                    style={{ color: "green", marginRight: "5px" }}
+                  ></i>
+                  5 Star Rated Partners
+                </li>
+                <li
+                  style={{
+                    marginBottom: "5px",
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <i
+                    className="fa fa-check-circle"
+                    style={{ color: "green", marginRight: "5px" }}
+                  ></i>
+                  Dedicated Customer Support
+                </li>
+              </ul>
+            </div>
+            <div
+              className="poppins-regular"
+              style={{
+                textAlign: "center",
+                fontSize: "12px",
+                color: "#999",
+                marginTop: "10px",
+              }}
+            >
+              By continuing, you agree to our{" "}
+              <a href="#" className="poppins-regular" style={{ color: "blue" }}>
+                Terms & Conditions
+              </a>
+              and agree to updates on{" "}
+              <span className="poppins-regular" style={{ color: "green" }}>
+                WhatsApp
+              </span>
+              .
+            </div>
           </div>
         </Modal.Body>
       </Modal>

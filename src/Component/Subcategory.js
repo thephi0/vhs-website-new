@@ -60,12 +60,10 @@ function Subcategory() {
 
   const queryString = window.location.search;
 
+  const serviceRefs = useRef({});
+
   localStorage.setItem("currentURL", currentURL);
   const currentURLdata = localStorage.getItem("currentURL");
-
-  console.log("Current URL stored in localStorage:", currentURLdata);
-
-  console.log("currentURL", currentURL);
 
   const getQueryParams = (queryString, param) => {
     const params = new URLSearchParams(queryString);
@@ -137,6 +135,7 @@ function Subcategory() {
   const dispatch = useDispatch();
   const [serviceData, setserviceData] = useState([]);
   const [selectedServiceName, setSelectedServiceName] = useState("");
+  const [serviceamount, setserviceamount] = useState(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [Item, setItem] = useState([]);
@@ -152,10 +151,8 @@ function Subcategory() {
   const [Quantity, setQuantity] = useState(1);
   const [offerBannerdata, setofferBannerdata] = useState([]);
   const [postsubdata, setpostsubdata] = useState([]);
-
   const [vshow, setvShow] = useState(false);
   const [modalbanner, setmodalbanner] = useState([]);
-
   const [vhspromise, setvhspromise] = useState([]);
   const [whychooseus, setwhychooseus] = useState([]);
   const [allcamparison, setallcamparison] = useState([]);
@@ -167,6 +164,10 @@ function Subcategory() {
   const [name, setname] = useState("");
   const [mobilenumber, setmobilenumber] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [customername, setcustomername] = useState("");
+  const [mainContact, setmainContact] = useState("");
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -636,7 +637,7 @@ function Subcategory() {
   const scrollToService = (index) => {
     const section = document.getElementById(`service-${index}`);
     if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -721,9 +722,8 @@ function Subcategory() {
   //   }
   // };
 
-  const addsurvey = async (e, serviceName) => {
+  const addsurvey = async (e, serviceName, serviceamount) => {
     e.preventDefault();
-    console.log("selectedServiceName====", serviceName);
 
     if (!name || !mobilenumber) {
       alert("Please fill in all fields");
@@ -800,7 +800,6 @@ function Subcategory() {
         Tag = "Organic social";
       }
 
-      console.log("Final Tag value:", Tag);
       localStorage.setItem("Tag", Tag);
 
       // API request
@@ -821,6 +820,7 @@ function Subcategory() {
           reference4: localutmcontent,
           intrestedfor: serviceName,
           Tag: Tag, // Pass the computed Tag here
+          amount: serviceamount,
         },
       };
 
@@ -829,6 +829,7 @@ function Subcategory() {
       if (response.status === 200) {
         setenquiryshow(false);
         addenquiryfollowup1(response.data.data);
+        window.location.assign("/thankyou");
       } else {
         alert(`Unexpected response: ${response.status}`);
       }
@@ -875,6 +876,128 @@ function Subcategory() {
       console.error(error);
 
       alert("Failed to booking.Please try again later...");
+    }
+  };
+
+  const calculatedPrices = useMemo(() => {
+    return subcategoryData.map((data) => {
+      const filteredPrices = data?.morepriceData?.filter(
+        (ele) => ele.pricecity === capitalizedCity
+      );
+
+      const lowestPrice =
+        filteredPrices?.length > 0
+          ? Math.min(
+              ...filteredPrices.map((ele) => parseFloat(ele.pofferprice))
+            )
+          : null;
+
+      const highPrice =
+        filteredPrices?.length > 0
+          ? Math.max(...filteredPrices.map((ele) => parseFloat(ele.pPrice)))
+          : null;
+
+      return { ...data, lowestPrice, highPrice };
+    });
+  }, [subcategoryData, capitalizedCity]);
+
+  const sendOTP = async () => {
+    // Validate mobile number
+    const isValidMobile = /^[6-9]\d{9}$/.test(mainContact);
+    if (!isValidMobile) {
+      alert("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
+    // if (!customername) {
+    //   alert("Please enter a valid name.");
+    //   return;
+    // }
+
+    // Extract UTM parameters
+    const queryParams = new URLSearchParams(window.location.search);
+    const utmSource = queryParams.get("utm_source") || "";
+    const utmMedium = queryParams.get("utm_medium") || "";
+    const utmCampaign = queryParams.get("utm_campaign") || "";
+    const utmContent = queryParams.get("utm_content") || "";
+    const gclid = queryParams.get("gclid") || "";
+    const referringDomain = document.referrer || "";
+
+    // Recognized social networks
+    const socialNetworks = [
+      "facebook.com",
+      "twitter.com",
+      "linkedin.com",
+      "instagram.com",
+    ];
+
+    // Determine the Tag value
+    let Tag = "";
+
+    // Logic for setting Tag
+    if (
+      (utmMedium === "social" &&
+        socialNetworks.some((network) => referringDomain.includes(network))) ||
+      (utmMedium === "social" && socialNetworks.includes(utmSource))
+    ) {
+      Tag = "Organic social";
+    } else if (
+      gclid ||
+      utmSource.toLowerCase().includes("adword") ||
+      utmSource.toLowerCase().includes("ppc") ||
+      utmSource.toLowerCase().includes("cpc") ||
+      (utmMedium.toLowerCase().includes("search") &&
+        utmSource.toLowerCase().includes("google")) ||
+      (utmSource === "google.com" && (utmMedium || utmCampaign))
+    ) {
+      Tag = "Paid search";
+    } else if (
+      (utmMedium.toLowerCase().includes("paid") ||
+        utmMedium.toLowerCase().includes("ppc") ||
+        utmMedium.toLowerCase().includes("cpc")) &&
+      socialNetworks.some(
+        (network) => utmSource === network || referringDomain.includes(network)
+      )
+    ) {
+      Tag = "Paid social";
+    } else if (
+      socialNetworks.some((network) => referringDomain.includes(network))
+    ) {
+      Tag = "Organic social";
+    } else {
+      console.warn("No Tag value identified for the current context.");
+    }
+
+    localStorage.setItem("Tag", Tag);
+
+    // Send OTP
+    try {
+      const response = await axios.post(
+        "https://api.vijayhomeservicebengaluru.in/api/sendotp/sendByCartBookweb",
+        {
+          mainContact: mainContact,
+          // customerName: customername,
+          reference1: localutm,
+          reference2: localutmcampaign,
+          reference3: localutmcontent,
+          Tag: Tag,
+        }
+      );
+
+      if (response.status === 200) {
+        alert("Successful login");
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        setShowLoginModal(false); // Close the modal
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        alert(error.response.data.error);
+      } else if (error.message) {
+        alert(`Error: ${error.message}`);
+      } else {
+        alert("An unknown error occurred. Please try again.");
+      }
+      console.error("Error details:", error);
     }
   };
 
@@ -974,7 +1097,7 @@ function Subcategory() {
                             <div
                               key={index}
                               className="col-md-4 mt-4 subcat-row text-center"
-                              onClick={() => scrollToService(index + 1)}
+                              onClick={() => scrollToService(index)}
                               style={{ cursor: "pointer" }}
                             >
                               <img
@@ -1075,8 +1198,11 @@ function Subcategory() {
                           <div style={{ marginLeft: "40px" }}>
                             <a
                               // href="https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon"
-                              href={`https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon.%20${encodeURIComponent(
-                                currentURL
+                              // href={`https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon.%20${encodeURIComponent(
+                              //   currentURL
+                              // )}`}
+                              href={`https://wa.me/919611600990?text=${encodeURIComponent(
+                                `Hi, I'm looking for the services related to ${sub}. Please reach out to me soon. URL: ${currentURL}`
                               )}`}
                               style={{
                                 textDecoration: "none",
@@ -1163,7 +1289,7 @@ function Subcategory() {
                     className="row mt-2"
                     style={{ justifyContent: "space-between" }}
                   >
-                    {subcategoryData
+                    {calculatedPrices
                       .sort((a, b) => parseInt(a.order) - parseInt(b.order))
                       .map((data, index) => (
                         <div className="d-flex">
@@ -1388,27 +1514,29 @@ function Subcategory() {
 
                               <div className="col-md-3 mt-4 mb-3 ">
                                 {data.category === "Painting" ? (
-                                  <div
-                                    // onClick={handleenquiryShow}
-                                    onClick={() => {
-                                      setSelectedServiceName(data.serviceName); // Set the selected service name
-                                      handleenquiryShow(); // Open the modal
-                                    }}
-                                    className="poppins-regular mx-4"
-                                    style={{
-                                      color: "blue",
-                                      fontSize: "14px",
-                                      fontWeight: "bold",
-                                      cursor: "pointer",
-                                      backgroundColor: "darkred",
-                                      color: "white",
-                                      textAlign: "center",
-                                      padding: "3px",
-                                      borderRadius: "5px",
-                                    }}
-                                  >
-                                    Free Quote
-                                  </div>
+                                  // <div
+                                  //   // onClick={handleenquiryShow}
+                                  //   onClick={() => {
+                                  //     setSelectedServiceName(data.serviceName);
+                                  //     setserviceamount(data.lowestPrice);
+                                  //     handleenquiryShow();
+                                  //   }}
+                                  //   className="poppins-regular mx-4"
+                                  //   style={{
+                                  //     color: "blue",
+                                  //     fontSize: "14px",
+                                  //     fontWeight: "bold",
+                                  //     cursor: "pointer",
+                                  //     backgroundColor: "darkred",
+                                  //     color: "white",
+                                  //     textAlign: "center",
+                                  //     padding: "3px",
+                                  //     borderRadius: "5px",
+                                  //   }}
+                                  // >
+                                  //   Free Quote
+                                  // </div>
+                                  <></>
                                 ) : (
                                   <div
                                     onClick={vhandleShow}
@@ -1456,7 +1584,11 @@ function Subcategory() {
                                     cursor: "pointer",
                                   }}
                                   // onClick={() => {
-                                  //   if (data.morepriceData.length > 0) {
+                                  //   if (data.category === "Painting") {
+                                  //     setenquiryshow(true);
+                                  //     setSelectedServiceName(data.serviceName);
+                                  //     setserviceamount(data.lowestPrice);
+                                  //   } else if (data.morepriceData.length > 0) {
                                   //     handleBook(data);
                                   //   } else {
                                   //     navigate("/ESpage", {
@@ -1465,19 +1597,30 @@ function Subcategory() {
                                   //   }
                                   // }}
                                   onClick={() => {
-                                    if (data.category === "Painting") {
-                                      setenquiryshow(true);
-                                      setSelectedServiceName(data.serviceName);
-                                    } else if (data.morepriceData.length > 0) {
-                                      handleBook(data);
+                                    const user = localStorage.getItem("user");
+
+                                    if (!user) {
+                                      setShowLoginModal(true);
                                     } else {
-                                      navigate("/ESpage", {
-                                        state: { sdata: data, city: city },
-                                      });
+                                      if (data.category === "Painting") {
+                                        setenquiryshow(true);
+                                        setSelectedServiceName(
+                                          data.serviceName
+                                        );
+                                        setserviceamount(data.lowestPrice);
+                                      } else if (
+                                        data.morepriceData.length > 0
+                                      ) {
+                                        handleBook(data);
+                                      } else {
+                                        navigate("/ESpage", {
+                                          state: { sdata: data, city: city },
+                                        });
+                                      }
                                     }
                                   }}
                                 >
-                                  Book
+                                  Add
                                 </div>
                               </div>
                             </div>
@@ -1590,8 +1733,11 @@ function Subcategory() {
 
                       <a
                         // href="https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon"
-                        href={`https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon.%20${encodeURIComponent(
-                          currentURL
+                        // href={`https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon.%20${encodeURIComponent(
+                        //   currentURL
+                        // )}`}
+                        href={`https://wa.me/919611600990?text=${encodeURIComponent(
+                          `Hi, I'm looking for the services related to ${sub}. Please reach out to me soon. URL: ${currentURL}`
                         )}`}
                         style={{
                           textDecoration: "none",
@@ -1684,7 +1830,8 @@ function Subcategory() {
                         <div
                           key={index}
                           className="col-3 text-center"
-                          onClick={() => scrollToService(index + 1)}
+                          // onClick={() => scrollToService1(index + 1)}
+                          onClick={() => scrollToService(index)}
                           style={{ cursor: "pointer" }}
                         >
                           <img
@@ -1715,7 +1862,7 @@ function Subcategory() {
                     className="row mt-2"
                     style={{ justifyContent: "space-between" }}
                   >
-                    {subcategoryData
+                    {calculatedPrices
                       .sort((a, b) => parseInt(a.order) - parseInt(b.order))
                       .map((data, index) => (
                         <div className="d-flex">
@@ -1940,27 +2087,29 @@ function Subcategory() {
 
                               <div className="col-md-3 mt-4 mb-3 ">
                                 {data.category === "Painting" ? (
-                                  <div
-                                    // onClick={handleenquiryShow}
-                                    onClick={() => {
-                                      setSelectedServiceName(data.serviceName); // Set the selected service name
-                                      handleenquiryShow(); // Open the modal
-                                    }}
-                                    className="poppins-regular mx-4"
-                                    style={{
-                                      color: "blue",
-                                      fontSize: "14px",
-                                      fontWeight: "bold",
-                                      cursor: "pointer",
-                                      backgroundColor: "darkred",
-                                      color: "white",
-                                      textAlign: "center",
-                                      padding: "3px",
-                                      borderRadius: "5px",
-                                    }}
-                                  >
-                                    Free Quote
-                                  </div>
+                                  // <div
+                                  //   // onClick={handleenquiryShow}
+                                  //   onClick={() => {
+                                  //     setSelectedServiceName(data.serviceName); // Set the selected service name
+                                  //     setserviceamount(data.lowestPrice);
+                                  //     handleenquiryShow(); // Open the modal
+                                  //   }}
+                                  //   className="poppins-regular mx-4"
+                                  //   style={{
+                                  //     color: "blue",
+                                  //     fontSize: "14px",
+                                  //     fontWeight: "bold",
+                                  //     cursor: "pointer",
+                                  //     backgroundColor: "darkred",
+                                  //     color: "white",
+                                  //     textAlign: "center",
+                                  //     padding: "3px",
+                                  //     borderRadius: "5px",
+                                  //   }}
+                                  // >
+                                  //   Free Quote
+                                  // </div>
+                                  <></>
                                 ) : (
                                   <div
                                     onClick={vhandleShow}
@@ -2016,20 +2165,44 @@ function Subcategory() {
                                   //     });
                                   //   }
                                   // }}
+                                  // onClick={() => {
+                                  //   if (data.category === "Painting") {
+                                  //     setenquiryshow(true);
+                                  //     setSelectedServiceName(data.serviceName);
+                                  //     setserviceamount(data.lowestPrice);
+                                  //   } else if (data.morepriceData.length > 0) {
+                                  //     handleBook(data);
+                                  //   } else {
+                                  //     navigate("/ESpage", {
+                                  //       state: { sdata: data, city: city },
+                                  //     });
+                                  //   }
+                                  // }}
                                   onClick={() => {
-                                    if (data.category === "Painting") {
-                                      setenquiryshow(true);
-                                      setSelectedServiceName(data.serviceName);
-                                    } else if (data.morepriceData.length > 0) {
-                                      handleBook(data);
+                                    const user = localStorage.getItem("user");
+
+                                    if (!user) {
+                                      setShowLoginModal(true);
                                     } else {
-                                      navigate("/ESpage", {
-                                        state: { sdata: data, city: city },
-                                      });
+                                      if (data.category === "Painting") {
+                                        setenquiryshow(true);
+                                        setSelectedServiceName(
+                                          data.serviceName
+                                        );
+                                        setserviceamount(data.lowestPrice);
+                                      } else if (
+                                        data.morepriceData.length > 0
+                                      ) {
+                                        handleBook(data);
+                                      } else {
+                                        navigate("/ESpage", {
+                                          state: { sdata: data, city: city },
+                                        });
+                                      }
                                     }
                                   }}
                                 >
-                                  Book
+                                  Add
                                 </div>
                               </div>
                             </div>
@@ -2823,7 +2996,9 @@ function Subcategory() {
 
                   <div
                     // onClick={addsurvey}
-                    onClick={(e) => addsurvey(e, selectedServiceName)}
+                    onClick={(e) =>
+                      addsurvey(e, selectedServiceName, serviceamount)
+                    }
                     className="poppins-black"
                     style={{
                       backgroundColor: "darkred",
@@ -2837,6 +3012,179 @@ function Subcategory() {
                   >
                     {!loading ? "Submit" : "Loading..."}
                     {/* Submit */}
+                  </div>
+                </Modal.Body>
+              </Modal>
+
+              {/* Login Modal */}
+
+              <Modal
+                show={showLoginModal}
+                centered
+                onHide={() => setShowLoginModal(false)} // Close modal
+                style={{ borderRadius: "10px" }}
+              >
+                <Modal.Body
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "30px",
+                  }}
+                >
+                  <div style={{ width: "100%", maxWidth: "400px" }}>
+                    <div
+                      className="poppins-light"
+                      style={{
+                        marginBottom: "10px",
+                        fontSize: "16px",
+                        color: "black",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Enter mobile number to continue
+                    </div>
+                    {/* <input
+                      type="text"
+                      value={customername}
+                      onChange={(e) => setcustomername(e.target.value)}
+                      placeholder="Enter Name"
+                      style={{
+                        border: "1px solid grey",
+                        height: "45px",
+                        width: "100%",
+                        marginTop: "15px",
+                      }}
+                    /> */}
+
+                    <input
+                      type="text"
+                      value={mainContact}
+                      onChange={(e) => setmainContact(e.target.value)}
+                      placeholder="Enter Mobile Number"
+                      style={{
+                        border: "1px solid grey",
+                        height: "45px",
+                        width: "100%",
+                      }}
+                    />
+                    <div
+                      onClick={sendOTP}
+                      style={{
+                        backgroundColor: "#ff465e",
+                        color: "white",
+                        textAlign: "center",
+                        padding: "10px",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Continue
+                    </div>
+                    <div
+                      style={{
+                        textAlign: "center",
+                        marginTop: "20px",
+                        fontSize: "14px",
+                        color: "#999",
+                      }}
+                    >
+                      Why to choose{" "}
+                      <span
+                        className="poppins-regular"
+                        style={{ color: "darkred" }}
+                      >
+                        Our Services?
+                      </span>
+                      <ul
+                        style={{
+                          listStyle: "none",
+                          padding: 0,
+                          marginTop: "10px",
+                        }}
+                      >
+                        <li
+                          style={{
+                            marginBottom: "5px",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <i
+                            className="fa fa-check-circle"
+                            style={{ color: "green", marginRight: "5px" }}
+                          ></i>
+                          Lowest Price Guaranteed
+                        </li>
+                        <li
+                          style={{
+                            marginBottom: "5px",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <i
+                            className="fa fa-check-circle"
+                            style={{ color: "green", marginRight: "5px" }}
+                          ></i>
+                          Free Reschedule
+                        </li>
+                        <li
+                          style={{
+                            marginBottom: "5px",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <i
+                            className="fa fa-check-circle"
+                            style={{ color: "green", marginRight: "5px" }}
+                          ></i>
+                          5 Star Rated Partners
+                        </li>
+                        <li
+                          style={{
+                            marginBottom: "5px",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <i
+                            className="fa fa-check-circle"
+                            style={{ color: "green", marginRight: "5px" }}
+                          ></i>
+                          Dedicated Customer Support
+                        </li>
+                      </ul>
+                    </div>
+                    <div
+                      className="poppins-regular"
+                      style={{
+                        textAlign: "center",
+                        fontSize: "12px",
+                        color: "#999",
+                        marginTop: "10px",
+                      }}
+                    >
+                      By continuing, you agree to our{" "}
+                      <a
+                        href="/terms-and-condition"
+                        className="poppins-regular"
+                        style={{ color: "blue" }}
+                      >
+                        Terms & Conditions
+                      </a>
+                      and agree to updates on{" "}
+                      <span
+                        className="poppins-regular"
+                        style={{ color: "green" }}
+                      >
+                        WhatsApp
+                      </span>
+                      .
+                    </div>
                   </div>
                 </Modal.Body>
               </Modal>

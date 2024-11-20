@@ -553,6 +553,8 @@ function Packersmovershome() {
     }
   };
 
+  console.log("cityData", cityData);
+
   return (
     <div>
       <Helmet>

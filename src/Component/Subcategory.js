@@ -167,6 +167,7 @@ function Subcategory() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [customername, setcustomername] = useState("");
   const [mainContact, setmainContact] = useState("");
+  const [loginloading, setloginloading] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -1620,7 +1621,7 @@ function Subcategory() {
                                     }
                                   }}
                                 >
-                                  Get free estimate
+                                  Add
                                 </div>
                               </div>
                             </div>
@@ -2203,7 +2204,7 @@ function Subcategory() {
                                     }
                                   }}
                                 >
-                                  Get free estimate
+                                  Add
                                 </div>
                               </div>
                             </div>
@@ -3082,7 +3083,7 @@ function Subcategory() {
                         fontWeight: "bold",
                       }}
                     >
-                      Continue
+                      {loading ? "Loading...." : "Continue"}
                     </div>
                     <div
                       style={{
@@ -3160,7 +3161,7 @@ function Subcategory() {
                         </li>
                       </ul>
                     </div>
-                    <div
+                    {/* <div
                       className="poppins-regular"
                       style={{
                         textAlign: "center",
@@ -3185,7 +3186,7 @@ function Subcategory() {
                         WhatsApp
                       </span>
                       .
-                    </div>
+                    </div> */}
                   </div>
                 </Modal.Body>
               </Modal>

@@ -44,6 +44,10 @@ function Viewdetails() {
 
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  const handleshowloginmodal = () => {
+    setShowLoginModal(true);
+  };
+
   const currentURLdata = localStorage.getItem("currentURL");
 
   console.log("Current URL stored in localStorage:", currentURLdata);
@@ -74,6 +78,7 @@ function Viewdetails() {
   const [cname, setcname] = useState("");
   const [mobilenumber, setmobilenumber] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loginloading, setloginloading] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
@@ -401,7 +406,8 @@ function Viewdetails() {
     if (user) {
       navigate("/cart", { state: { city: city } });
     } else {
-      navigate("/login", { state: { city: city } });
+      // navigate("/login", { state: { city: city } });
+      handleshowloginmodal();
     }
   };
 
@@ -512,7 +518,7 @@ function Viewdetails() {
       alert("Please enter a valid 10-digit mobile number.");
       return;
     }
-
+    setloginloading(true);
     try {
       const response = await axios.post(
         "https://api.vijayhomeservicebengaluru.in/api/sendotp/sendByCartBookweb",
@@ -540,6 +546,8 @@ function Viewdetails() {
         alert("An unknown error occurred. Please try again.");
       }
       console.error("Error details:", error);
+    } finally {
+      setloginloading(false);
     }
   };
 
@@ -1889,7 +1897,7 @@ function Viewdetails() {
                 fontWeight: "bold",
               }}
             >
-              Continue
+              {loginloading ? "Loading..." : "Continue"}
             </div>
             <div
               style={{
@@ -1964,7 +1972,7 @@ function Viewdetails() {
                 </li>
               </ul>
             </div>
-            <div
+            {/* <div
               className="poppins-regular"
               style={{
                 textAlign: "center",
@@ -1982,7 +1990,7 @@ function Viewdetails() {
                 WhatsApp
               </span>
               .
-            </div>
+            </div> */}
           </div>
         </Modal.Body>
       </Modal>

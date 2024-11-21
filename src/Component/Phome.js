@@ -79,6 +79,7 @@ function Phome() {
   const [email, setemail] = useState("");
   const [contact, setcontact] = useState("");
   const [slidesPerView, setSlidesPerView] = useState(3);
+  const [bookingshow, setbookingshow] = useState(false);
 
   const [CouponApplybtn, setCouponApplyBtn] = useState("");
   const userString = localStorage.getItem("user");
@@ -473,8 +474,14 @@ function Phome() {
     if (MyCartItems.length === 0) {
       alert("Please add an item");
     } else {
-      setvisible(true); // This should only be called if there are items in the cart
+      setvisible(true);
+      setbookingshow(false);
     }
+  };
+
+  const handlebookingshow = () => {
+    setvisible(false);
+    setbookingshow(true);
   };
 
   const displayGrandTotal = MyCartItems.length === 0 ? 0 : GrandTotal;
@@ -525,6 +532,13 @@ function Phome() {
 
   console.log("distanceInKm", distanceInKm);
 
+  const localutm = localStorage.getItem("utm_source");
+  console.log("localutm", localutm);
+  const localutmcampaign = localStorage.getItem("utm_campaign");
+  console.log("localutmcampaign", localutmcampaign);
+  const localutmcontent = localStorage.getItem("utm_content");
+  console.log("localutmcontent", localutmcontent);
+
   const handleSubmit1 = async (e) => {
     e.preventDefault();
     if (!selectedDate) {
@@ -556,7 +570,7 @@ function Phome() {
           bookingDate: moment().format("LLL"),
           serviceDate: selectedDate,
           slot: slot,
-          city: selectedCity,
+          city: selectedCity, 
           category: "Packers & Movers",
           packingLayer: singleLayer ? singleLayer : multilayer,
           unpacking: unpacking ? true : false,
@@ -568,6 +582,9 @@ function Phome() {
           dropFloor: dropfloornumber,
           vehicleName: selectedVehicle?.vehicalName,
           vehiclePrice: selectedVehicle?.basePrice,
+          reference1: localutm,
+          reference2: localutmcampaign,
+          reference3: localutmcontent,
         },
       };
 
@@ -726,94 +743,79 @@ function Phome() {
         />
       </div>
 
-      {!visible ? (
-        <>
-          <div className="container">
-            <div className="row">
-              <div
-                className="col-md-8 shadow-sm p-3 mb-5 mt-3"
-                style={{ borderRadius: "10px" }}
-              >
-                <div className="d-flex">
-                  <div className="d-flex" style={{ alignItems: "center" }}>
-                    <i
-                      className="fa-solid fa-arrow-left"
-                      style={{ fontSize: "18px", color: "darkred" }}
-                    ></i>
-                  </div>
-                  <div className="poppins-black mx-3">Add your Inventory</div>
-                </div>
-
+      <div className="pm-web">
+        {!visible ? (
+          <>
+            <div className="container">
+              <div className="row">
                 <div
-                  className="d-flex mt-3"
-                  style={{
-                    backgroundColor: "aliceblue",
-                    padding: "10px",
-                    borderRadius: "5px",
-                  }}
+                  className="col-md-8 shadow-sm p-3 mb-5 mt-3"
+                  style={{ borderRadius: "10px" }}
                 >
-                  <img
-                    src={star}
-                    className=""
-                    alt="loading...."
-                    style={{ width: "20px", height: "20px" }}
-                  />
-                  <div
-                    className="poppins-regular mx-2"
-                    style={{ color: "grey" }}
-                  >
-                    By providing list of household items allows us to provide an
-                    accurate cost.
+                  <div className="d-flex">
+                    <div className="d-flex" style={{ alignItems: "center" }}>
+                      <i
+                        className="fa-solid fa-arrow-left"
+                        style={{ fontSize: "18px", color: "darkred" }}
+                      ></i>
+                    </div>
+                    <div className="poppins-black mx-3">Add your Inventory</div>
                   </div>
-                </div>
 
-                <div className="">
-                  <input
-                    type="text"
-                    className="col-md-12 mt-3 poppins-regular"
-                    placeholder="Search for a household item to add"
+                  <div
+                    className="d-flex mt-3"
                     style={{
-                      border: "1px solid grey",
-                      height: "45px",
-                      textAlign: "left",
-                      paddingLeft: "45px",
+                      backgroundColor: "aliceblue",
+                      padding: "10px",
+                      borderRadius: "5px",
                     }}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <i
-                    className="fa-solid fa-magnifying-glass p-search-icon"
-                    style={{
-                      color: "grey",
-                      position: "absolute",
-                      left: "91px",
-                      fontSize: "18px",
-                      marginTop: "29px",
-                      marginLeft: "-17px",
-                    }}
-                  ></i>
-                </div>
-
-                <div className="row" style={{ justifyContent: "center" }}>
-                  <div className="col-md-3 col-6 pb-3">
+                  >
+                    <img
+                      src={star}
+                      className=""
+                      alt="loading...."
+                      style={{ width: "20px", height: "20px" }}
+                    />
                     <div
-                      onClick={handleShow}
-                      className="poppins-regular"
-                      style={{
-                        border: "1px solid grey",
-                        textAlign: "center",
-                        borderRadius: "20px",
-                        padding: "6px 9px",
-                        cursor: "pointer",
-                      }}
+                      className="poppins-regular mx-2"
+                      style={{ color: "grey" }}
                     >
-                      Added Items ({MyCartItems.length || 0})
+                      By providing list of household items allows us to provide
+                      an accurate cost.
                     </div>
                   </div>
-                  {categoryData.map((item, index) => (
-                    <div className="col-md-3 col-6 pb-3" key={index}>
+
+                  <div className="">
+                    <input
+                      type="text"
+                      className="col-md-12 mt-3 poppins-regular"
+                      placeholder="Search for a household item to add"
+                      style={{
+                        border: "1px solid grey",
+                        height: "45px",
+                        textAlign: "left",
+                        paddingLeft: "45px",
+                      }}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <i
+                      className="fa-solid fa-magnifying-glass p-search-icon"
+                      style={{
+                        color: "grey",
+                        position: "absolute",
+                        left: "91px",
+                        fontSize: "18px",
+                        marginTop: "29px",
+                        // marginLeft: "-17px",
+                      }}
+                    ></i>
+                  </div>
+
+                  <div className="row" style={{ justifyContent: "center" }}>
+                    <div className="col-md-3 col-6 pb-3">
                       <div
-                        onClick={() => handleCategoryClick(item.category)}
+                        onClick={handleShow}
                         className="poppins-regular"
                         style={{
                           border: "1px solid grey",
@@ -821,23 +823,39 @@ function Phome() {
                           borderRadius: "20px",
                           padding: "6px 9px",
                           cursor: "pointer",
-                          color:
-                            activeCategory === item.category
-                              ? "white"
-                              : "black",
-                          backgroundColor:
-                            activeCategory === item.category
-                              ? "#FF8343"
-                              : "transparent",
                         }}
                       >
-                        {item.category}
+                        Added Items ({MyCartItems.length || 0})
                       </div>
                     </div>
-                  ))}
-                </div>
+                    {categoryData.map((item, index) => (
+                      <div className="col-md-3 col-6 pb-3" key={index}>
+                        <div
+                          onClick={() => handleCategoryClick(item.category)}
+                          className="poppins-regular"
+                          style={{
+                            border: "1px solid grey",
+                            textAlign: "center",
+                            borderRadius: "20px",
+                            padding: "6px 9px",
+                            cursor: "pointer",
+                            color:
+                              activeCategory === item.category
+                                ? "white"
+                                : "black",
+                            backgroundColor:
+                              activeCategory === item.category
+                                ? "#FF8343"
+                                : "transparent",
+                          }}
+                        >
+                          {item.category}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
 
-                {/* <div
+                  {/* <div
                   className="row m-auto p-3 border mt-3"
                   style={{
                     borderRadius: "10px",
@@ -995,263 +1013,709 @@ function Phome() {
                   </div>
                 </div> */}
 
-                <div
-                  className="row m-auto p-3 border mt-3"
-                  style={{
-                    borderRadius: "10px",
-                    height: "auto",
-                    // overflowY: "scroll",
-                  }}
-                >
-                  <div>
-                    {Object.entries(groupedItems)
-                      // Show all categories if no category is clicked, otherwise filter by activeCategory
-                      .filter(
-                        ([category]) =>
-                          !activeCategory || activeCategory === category
-                      )
-                      .map(([category, subcategories], catIndex) => (
-                        <div key={catIndex} style={{ marginBottom: "20px" }}>
-                          <h2
-                            ref={(el) => (categoryRefs.current[category] = el)}
-                            className="poppins-black"
-                            style={{ color: "darkred" }}
-                          >
-                            {category}
-                          </h2>
+                  <div
+                    className="row m-auto p-3 border mt-3"
+                    style={{
+                      borderRadius: "10px",
+                      height: "auto",
+                      // overflowY: "scroll",
+                    }}
+                  >
+                    <div>
+                      {Object.entries(groupedItems)
+                        // Show all categories if no category is clicked, otherwise filter by activeCategory
+                        .filter(
+                          ([category]) =>
+                            !activeCategory || activeCategory === category
+                        )
+                        .map(([category, subcategories], catIndex) => (
+                          <div key={catIndex} style={{ marginBottom: "20px" }}>
+                            <h2
+                              ref={(el) =>
+                                (categoryRefs.current[category] = el)
+                              }
+                              className="poppins-black"
+                              style={{ color: "darkred" }}
+                            >
+                              {category}
+                            </h2>
 
-                          {/* Subcategories */}
-                          {Object.entries(subcategories).map(
-                            ([subcategory, items], subIndex) => (
-                              <div key={subIndex}>
-                                <div
-                                  onClick={() =>
-                                    handleSubcategoryClick(subcategory)
-                                  }
-                                  className="poppins-regular"
-                                  style={{
-                                    backgroundColor: "white",
-                                    borderRadius: "5px",
-                                    padding: "10px",
-                                    border: "1px solid lightgrey",
-                                    marginBottom: "10px",
-                                    fontWeight: "bold",
-                                    cursor: "pointer",
-                                  }}
-                                >
-                                  {subcategory}
+                            {/* Subcategories */}
+                            {Object.entries(subcategories).map(
+                              ([subcategory, items], subIndex) => (
+                                <div key={subIndex}>
+                                  <div
+                                    onClick={() =>
+                                      handleSubcategoryClick(subcategory)
+                                    }
+                                    className="poppins-regular"
+                                    style={{
+                                      backgroundColor: "white",
+                                      borderRadius: "5px",
+                                      padding: "10px",
+                                      border: "1px solid lightgrey",
+                                      marginBottom: "10px",
+                                      fontWeight: "bold",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    {subcategory}
 
-                                  {/* Display items if the subcategory is active */}
-                                  {activeSubcategory === subcategory &&
-                                    items.map((item) => (
-                                      <div
-                                        className="d-flex mt-2"
-                                        style={{
-                                          borderBottom: "1px solid lightgrey",
-                                          borderBottomStyle: "dashed",
-                                          justifyContent: "space-between",
-                                        }}
-                                        key={item._id}
-                                      >
+                                    {/* Display items if the subcategory is active */}
+                                    {activeSubcategory === subcategory &&
+                                      items.map((item) => (
                                         <div
-                                          className="col-md-8 p-2"
+                                          className="d-flex mt-2"
                                           style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            borderRadius: "5px",
+                                            borderBottom: "1px solid lightgrey",
+                                            borderBottomStyle: "dashed",
+                                            justifyContent: "space-between",
                                           }}
+                                          key={item._id}
                                         >
-                                          <div className="poppins-regular">
-                                            {item.itemname}
-                                          </div>
-                                        </div>
-                                        <div className="col-md-4 p-2">
                                           <div
-                                            className="d-flex"
-                                            style={{ justifyContent: "end" }}
+                                            className="col-md-8 p-2"
+                                            style={{
+                                              display: "flex",
+                                              alignItems: "center",
+                                              borderRadius: "5px",
+                                            }}
                                           >
-                                            {MyCartItems.find(
-                                              (i) => i.id === item._id
-                                            ) ? (
-                                              <div
-                                                className="d-flex"
-                                                style={{
-                                                  justifyContent:
-                                                    "space-between",
-                                                }}
-                                              >
-                                                <div className="col-md-3 ">
-                                                  <i
-                                                    onClick={() =>
-                                                      handleDecrementQuantity(
-                                                        item
-                                                      )
-                                                    }
-                                                    className="fa-solid fa-minus"
-                                                    style={{
-                                                      fontSize: "16px",
-                                                      border: "1px solid black",
-                                                      padding: "5px",
-                                                      textAlign: "center",
-                                                    }}
-                                                  ></i>
-                                                </div>
-                                                <div className="col-md-2">
-                                                  <div className="poppins-regular text-center mx-1 mt-1 px-1">
-                                                    {MyCartItems.find(
-                                                      (i) => i.id === item._id
-                                                    )?.qty || 0}
-                                                  </div>
-                                                </div>
+                                            <div className="poppins-regular">
+                                              {item.itemname}
+                                            </div>
+                                          </div>
+                                          <div className="col-md-4 p-2">
+                                            <div
+                                              className="d-flex"
+                                              style={{ justifyContent: "end" }}
+                                            >
+                                              {MyCartItems.find(
+                                                (i) => i.id === item._id
+                                              ) ? (
                                                 <div
-                                                  className="col-md-3 d-flex"
+                                                  className="d-flex"
                                                   style={{
-                                                    alignItems: "flex-start",
+                                                    justifyContent:
+                                                      "space-between",
                                                   }}
                                                 >
-                                                  <i
-                                                    onClick={() =>
-                                                      handleIncrementQuantity(
-                                                        item
-                                                      )
-                                                    }
-                                                    className="fa-solid fa-plus"
+                                                  <div className="col-md-3 ">
+                                                    <i
+                                                      onClick={() =>
+                                                        handleDecrementQuantity(
+                                                          item
+                                                        )
+                                                      }
+                                                      className="fa-solid fa-minus"
+                                                      style={{
+                                                        fontSize: "16px",
+                                                        border:
+                                                          "1px solid black",
+                                                        padding: "5px",
+                                                        textAlign: "center",
+                                                      }}
+                                                    ></i>
+                                                  </div>
+                                                  <div className="col-md-2">
+                                                    <div className="poppins-regular text-center mx-1 mt-1 px-1">
+                                                      {MyCartItems.find(
+                                                        (i) => i.id === item._id
+                                                      )?.qty || 0}
+                                                    </div>
+                                                  </div>
+                                                  <div
+                                                    className="col-md-3 d-flex"
                                                     style={{
-                                                      fontSize: "16px",
-                                                      border: "1px solid black",
-                                                      padding: "5px",
+                                                      alignItems: "flex-start",
                                                     }}
-                                                  ></i>
+                                                  >
+                                                    <i
+                                                      onClick={() =>
+                                                        handleIncrementQuantity(
+                                                          item
+                                                        )
+                                                      }
+                                                      className="fa-solid fa-plus"
+                                                      style={{
+                                                        fontSize: "16px",
+                                                        border:
+                                                          "1px solid black",
+                                                        padding: "5px",
+                                                      }}
+                                                    ></i>
+                                                  </div>
                                                 </div>
-                                              </div>
-                                            ) : (
-                                              <div
-                                                className="poppins-regular"
-                                                style={{
-                                                  backgroundColor: "green",
-                                                  color: "white",
-                                                  textAlign: "center",
-                                                  padding: "5px",
-                                                  borderRadius: "10px",
-                                                  width: "78px",
-                                                  cursor: "pointer",
-                                                }}
-                                                onClick={() =>
-                                                  handleAddToCart(
-                                                    item,
-                                                    category,
-                                                    subcategory
-                                                  )
-                                                }
-                                              >
-                                                Add
-                                              </div>
-                                            )}
+                                              ) : (
+                                                <div
+                                                  className="poppins-regular"
+                                                  style={{
+                                                    backgroundColor: "green",
+                                                    color: "white",
+                                                    textAlign: "center",
+                                                    padding: "5px",
+                                                    borderRadius: "10px",
+                                                    width: "78px",
+                                                    cursor: "pointer",
+                                                  }}
+                                                  onClick={() =>
+                                                    handleAddToCart(
+                                                      item,
+                                                      category,
+                                                      subcategory
+                                                    )
+                                                  }
+                                                >
+                                                  Add
+                                                </div>
+                                              )}
+                                            </div>
                                           </div>
                                         </div>
-                                      </div>
-                                    ))}
+                                      ))}
+                                  </div>
                                 </div>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      ))}
-                  </div>
-                </div>
-
-                <div
-                  onClick={handleShow4}
-                  className="d-flex mt-3"
-                  style={{
-                    backgroundColor: "aliceblue",
-                    padding: "10px",
-                    borderRadius: "5px",
-                    justifyContent: "space-between",
-                    cursor: "pointer",
-                  }}
-                >
-                  <div
-                    className="poppins-regular mx-2"
-                    style={{ color: "grey" }}
-                  >
-                    Get a video inspection for{" "}
-                    <span
-                      className="poppins-regular"
-                      style={{
-                        backgroundColor: "green",
-                        padding: "3px",
-                        color: "white",
-                        borderRadius: "5px",
-                      }}
-                    >
-                      Free
-                    </span>
-                  </div>
-                  <i
-                    className="fa-solid fa-circle-arrow-right"
-                    style={{ fontSize: "18px" }}
-                  ></i>
-                </div>
-
-                <div
-                  className="d-flex p-3"
-                  style={{ justifyContent: "space-between" }}
-                >
-                  <div className="col-md-9 " style={{ alignItems: "center" }}>
-                    <div
-                      className="poppins-black"
-                      style={{ cursor: "pointer" }}
-                    >
-                      Total Items ({MyCartItems.length || 0})
-                    </div>{" "}
-                    <div
-                      onClick={handleShow2}
-                      className="poppins-black pt-2"
-                      style={{ color: "skyblue", cursor: "pointer" }}
-                    >
-                      View All{" "}
-                      <span className="mx-1">
-                        <i
-                          className="fa-solid fa-greater-than"
-                          style={{ color: "skyblue", fontSize: "13px" }}
-                        ></i>
-                      </span>
+                              )
+                            )}
+                          </div>
+                        ))}
                     </div>
                   </div>
-                  <div className="col-md-3 ">
+
+                  <div
+                    onClick={handleShow4}
+                    className="d-flex mt-3"
+                    style={{
+                      backgroundColor: "aliceblue",
+                      padding: "10px",
+                      borderRadius: "5px",
+                      justifyContent: "space-between",
+                      cursor: "pointer",
+                    }}
+                  >
                     <div
-                      onClick={handleContinueClick}
-                      className="poppins-black"
-                      style={{
-                        backgroundColor: "red",
-                        color: "white",
-                        textAlign: "center",
-                        padding: "5px",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                      }}
+                      className="poppins-regular mx-2"
+                      style={{ color: "grey" }}
                     >
-                      Continue
+                      Get a video inspection for{" "}
+                      <span
+                        className="poppins-regular"
+                        style={{
+                          backgroundColor: "green",
+                          padding: "3px",
+                          color: "white",
+                          borderRadius: "5px",
+                        }}
+                      >
+                        Free
+                      </span>
+                    </div>
+                    <i
+                      className="fa-solid fa-circle-arrow-right"
+                      style={{ fontSize: "18px" }}
+                    ></i>
+                  </div>
+
+                  <div
+                    className="d-flex p-3"
+                    style={{ justifyContent: "space-between" }}
+                  >
+                    <div className="col-md-9 " style={{ alignItems: "center" }}>
+                      <div
+                        className="poppins-black"
+                        style={{ cursor: "pointer" }}
+                      >
+                        Total Items ({MyCartItems.length || 0})
+                      </div>{" "}
+                      <div
+                        onClick={handleShow2}
+                        className="poppins-black pt-2"
+                        style={{ color: "skyblue", cursor: "pointer" }}
+                      >
+                        View All{" "}
+                        <span className="mx-1">
+                          <i
+                            className="fa-solid fa-greater-than"
+                            style={{ color: "skyblue", fontSize: "13px" }}
+                          ></i>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="col-md-3 ">
+                      <div
+                        onClick={handleContinueClick}
+                        className="poppins-black"
+                        style={{
+                          backgroundColor: "red",
+                          color: "white",
+                          textAlign: "center",
+                          padding: "5px",
+                          borderRadius: "5px",
+                          cursor: "pointer",
+                        }}
+                      >
+                        Continue
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="col-md-4">
+                  <div
+                    className="shadow-sm p-3  mt-3"
+                    style={{
+                      borderRadius: "10px",
+                      height: "auto",
+                      border: "2px solid darkred",
+                    }}
+                  >
+                    <div className="poppins-black">Address</div>
+
+                    <div className="d-flex mt-3">
+                      <div
+                        className="col-md-1 d-flex"
+                        style={{ alignItems: "center" }}
+                      >
+                        <i
+                          className="fa-solid fa-location-crosshairs"
+                          style={{ fontSize: "20px", color: "green" }}
+                        ></i>
+                      </div>
+                      <div className="col-md-11 px-1">
+                        <div
+                          className="poppins-regular"
+                          style={{
+                            display: "-webkit-box",
+                            WebkitLineClamp: 1,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            color: "green",
+                          }}
+                        >
+                          {pickupLocation}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      className=""
+                      style={{
+                        borderLeft: "1px solid grey",
+                        height: "31px",
+                        borderLeftStyle: "dashed",
+                        marginLeft: "10px",
+                        position: "absolute",
+                      }}
+                    ></div>
+
+                    <div className="d-flex mt-4 pt-2">
+                      <div
+                        className="col-md-1 d-flex"
+                        style={{ alignItems: "center" }}
+                      >
+                        <i
+                          className="fa-solid fa-location-crosshairs"
+                          style={{ fontSize: "20px", color: "red" }}
+                        ></i>
+                      </div>
+                      <div className="col-md-11 px-1">
+                        <div
+                          className="poppins-regular"
+                          style={{
+                            display: "-webkit-box",
+                            WebkitLineClamp: 1,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            color: "red",
+                          }}
+                        >
+                          {dropLocation}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="d-flex mt-4">
+                    <div className="col-md-10">
+                      <div
+                        className="poppins-regular"
+                        style={{ fontWeight: "bold" }}
+                      >
+                        Service lift available at pickup
+                      </div>
+                      <div
+                        className="poppins-regular"
+                        style={{ color: "grey" }}
+                      >
+                        A working service lift will reduce the overall quote
+                      </div>
+                    </div>
+                    <div className="col-md-2">
+                      <Switch
+                        checked={pickupfloor}
+                        onChange={handlepickupfloor}
+                        onColor="#86d3ff"
+                        onHandleColor="#2693e6"
+                        handleDiameter={20}
+                        uncheckedIcon={false}
+                        checkedIcon={false}
+                        boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                        activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                        height={20}
+                        width={48}
+                      />
+                    </div>
+                  </div>
+
+                  {pickupfloor && (
+                    <div className="mt-3">
+                      <input
+                        type="text"
+                        className="form-control poppins-regular"
+                        placeholder="Floor Number"
+                        value={pickupfloornumber}
+                        onChange={(e) => setpickupfloornumber(e.target.value)}
+                      />
+                    </div>
+                  )}
+
+                  <div className="d-flex mt-4">
+                    <div className="col-md-10">
+                      <div
+                        className="poppins-regular"
+                        style={{ fontWeight: "bold" }}
+                      >
+                        Service lift available at drop
+                      </div>
+                      <div
+                        className="poppins-regular"
+                        style={{ color: "grey" }}
+                      >
+                        A working service lift will reduce the overall quote
+                      </div>
+                    </div>
+                    <div className="col-md-2">
+                      <Switch
+                        checked={dropfloor}
+                        onChange={handledropfloor}
+                        onColor="#86d3ff"
+                        onHandleColor="#2693e6"
+                        handleDiameter={20}
+                        uncheckedIcon={false}
+                        checkedIcon={false}
+                        boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                        activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                        height={20}
+                        width={48}
+                      />
+                    </div>
+                  </div>
+
+                  {dropfloor && (
+                    <div className="mt-3">
+                      <input
+                        type="text"
+                        className="form-control poppins-regular"
+                        placeholder="Floor Number"
+                        value={dropfloornumber}
+                        onChange={(e) => setdropfloornumber(e.target.value)}
+                      />
+                    </div>
+                  )}
+
+                  <div className="row">
+                    <div className="col-md-12">
+                      <div
+                        className="shadow-sm p-3 mb-3 mt-3"
+                        style={{ borderRadius: "10px" }}
+                      >
+                        <div
+                          className="d-flex"
+                          style={{ justifyContent: "space-between" }}
+                        >
+                          <div className="col-md-8">
+                            <div className="poppins-black">Base Price</div>
+                          </div>
+                          <div className="col-md-4">
+                            <div
+                              className="poppins-black text-end"
+                              style={{ color: "green" }}
+                            >
+                              ₹ {displayGrandTotal.toFixed(0)}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div
+                          className="d-flex mt-3"
+                          style={{ alignItems: "center" }}
+                        >
+                          <i
+                            className="fa-solid fa-circle-check"
+                            style={{ color: "green", fontSize: "14px" }}
+                          ></i>
+                          <div className="poppins-regular ms-2">
+                            Friendly and professional movers
+                          </div>
+                        </div>
+
+                        <div
+                          className="d-flex mt-3"
+                          style={{ alignItems: "center" }}
+                        >
+                          <i
+                            className="fa-solid fa-circle-check"
+                            style={{ color: "green", fontSize: "14px" }}
+                          ></i>
+                          <div className="poppins-regular ms-2">
+                            Loading and unloading included
+                          </div>
+                        </div>
+
+                        <div
+                          className="d-flex mt-3"
+                          style={{ alignItems: "center" }}
+                        >
+                          <i
+                            className="fa-solid fa-circle-check"
+                            style={{ color: "green", fontSize: "14px" }}
+                          ></i>
+                          <div className="poppins-regular ms-2">
+                            Transport items safely with a dedicated vehicle
+                          </div>
+                        </div>
+                        <div
+                          className="d-flex mt-3"
+                          style={{ alignItems: "center" }}
+                        >
+                          <i
+                            className="fa-solid fa-circle-check"
+                            style={{ color: "green", fontSize: "14px" }}
+                          ></i>
+                          <div className="poppins-regular ms-2">
+                            Rearrangement of big items
+                          </div>
+                        </div>
+
+                        <div className="poppins-black mt-3">
+                          Recommended add ons for you
+                        </div>
+
+                        <div
+                          className="d-flex pt-2"
+                          style={{ justifyContent: "space-between" }}
+                        >
+                          <div className="col-md-8">
+                            <div className="poppins-regular">
+                              Single-layer packing
+                            </div>
+                            <div className="poppins-regular">
+                              ₹ {packingAmt}
+                            </div>
+                          </div>
+                          <div
+                            className="col-md-4 d-flex"
+                            style={{ justifyContent: "end" }}
+                          >
+                            <Switch
+                              checked={singleLayer}
+                              onChange={singleLayerSwitch}
+                              onColor="#86d3ff"
+                              onHandleColor="#2693e6"
+                              handleDiameter={20}
+                              uncheckedIcon={false}
+                              checkedIcon={false}
+                              boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                              activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                              height={20}
+                              width={48}
+                            />
+                          </div>
+                        </div>
+                        <div
+                          className="d-flex pt-3"
+                          style={{ justifyContent: "space-between" }}
+                        >
+                          <div className="col-md-8">
+                            <div className="poppins-regular">
+                              Multi-layer packing
+                            </div>
+                            <div className="poppins-regular">
+                              ₹ {packingAmt * 2}
+                            </div>
+                          </div>
+                          <div
+                            className="col-md-4 d-flex"
+                            style={{ justifyContent: "end" }}
+                          >
+                            <Switch
+                              checked={multilayer}
+                              onChange={multilayerSwitch}
+                              onColor="#86d3ff"
+                              onHandleColor="#2693e6"
+                              handleDiameter={20}
+                              uncheckedIcon={false}
+                              checkedIcon={false}
+                              boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                              activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                              height={20}
+                              width={48}
+                            />
+                          </div>
+                        </div>
+
+                        <div
+                          className="d-flex pt-3"
+                          style={{ justifyContent: "space-between" }}
+                        >
+                          <div className="col-md-8">
+                            <div className="poppins-regular">
+                              Unpacking all the packed items{" "}
+                            </div>
+                            <div className="poppins-regular">
+                              ₹ {packingAmt}
+                            </div>
+                          </div>
+                          <div
+                            className="col-md-4 d-flex"
+                            style={{ justifyContent: "end" }}
+                          >
+                            <Switch
+                              checked={unpacking}
+                              onChange={unpackingSwitch}
+                              onColor="#86d3ff"
+                              onHandleColor="#2693e6"
+                              handleDiameter={20}
+                              uncheckedIcon={false}
+                              checkedIcon={false}
+                              boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                              activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                              height={20}
+                              width={48}
+                            />
+                          </div>
+                        </div>
+
+                        <div
+                          className="d-flex pt-3"
+                          style={{ justifyContent: "space-between" }}
+                        >
+                          <div className="col-md-8">
+                            <div className="poppins-regular">
+                              {" "}
+                              Dismantling and reassembly of basic
+                            </div>
+                            <div className="poppins-regular">
+                              ₹ {packingAmt}
+                            </div>
+                          </div>
+                          <div
+                            className="col-md-4 d-flex"
+                            style={{ justifyContent: "end" }}
+                          >
+                            <Switch
+                              checked={dismantling}
+                              onChange={dismantlingSwitch}
+                              onColor="#86d3ff"
+                              onHandleColor="#2693e6"
+                              handleDiameter={20}
+                              uncheckedIcon={false}
+                              checkedIcon={false}
+                              boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                              activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                              height={20}
+                              width={48}
+                            />
+                          </div>
+                        </div>
+
+                        <div
+                          className="poppins-regular mt-4"
+                          style={{
+                            backgroundColor: "green",
+                            padding: "5px",
+                            borderRadius: "5px",
+                            color: "white",
+                          }}
+                        >
+                          <span>
+                            <i
+                              className="fa-solid fa-circle-info mx-2"
+                              style={{ color: "white", fontSize: "14px" }}
+                            ></i>
+                          </span>
+                          Pay booking amount of 99 to place the order
+                        </div>
+
+                        <div
+                          className="d-flex p-3"
+                          style={{ justifyContent: "space-between" }}
+                        >
+                          <div
+                            className="col-md-9 d-flex"
+                            style={{ alignItems: "center" }}
+                          >
+                            <div
+                              className="poppins-black"
+                              onClick={handleShow}
+                              style={{ cursor: "pointer" }}
+                            >
+                              ₹ {displayGrandTotal.toFixed(0)}
+                            </div>
+                          </div>
+                          <div className="col-md-3">
+                            <div
+                              onClick={handleContinueClick}
+                              className="poppins-black"
+                              style={{
+                                backgroundColor: "red",
+                                color: "white",
+                                textAlign: "center",
+                                padding: "5px 10px",
+                                borderRadius: "5px",
+                                cursor: "pointer",
+                              }}
+                            >
+                              Next
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      {/* <div className="poppins-black">Packers Movers Page</div> */}
                     </div>
                   </div>
                 </div>
               </div>
-              <div className="col-md-4">
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="container">
+              <div
+                className="row p-4 mb-5"
+                style={{ justifyContent: "center" }}
+              >
                 <div
-                  className="shadow-sm p-3  mt-3"
-                  style={{
-                    borderRadius: "10px",
-                    height: "auto",
-                    border: "2px solid darkred",
-                  }}
+                  className="col-md-7 shadow-sm  p-3"
+                  style={{ borderRadius: "10px" }}
                 >
-                  <div className="poppins-black">Address</div>
+                  <div className="d-flex">
+                    <div className="d-flex" style={{ alignItems: "center" }}>
+                      <i
+                        className="fa-solid fa-arrow-left"
+                        style={{ fontSize: "18px", color: "darkred" }}
+                      ></i>
+                    </div>
+                    <div className="poppins-black mx-3">Booking Page</div>
+                  </div>
 
                   <div className="d-flex mt-3">
                     <div
                       className="col-md-1 d-flex"
-                      style={{ alignItems: "center" }}
+                      style={{ alignItems: "center", justifyContent: "center" }}
                     >
                       <i
                         className="fa-solid fa-location-crosshairs"
@@ -1281,7 +1745,7 @@ function Phome() {
                       borderLeft: "1px solid grey",
                       height: "31px",
                       borderLeftStyle: "dashed",
-                      marginLeft: "10px",
+                      marginLeft: "25px",
                       position: "absolute",
                     }}
                   ></div>
@@ -1289,7 +1753,7 @@ function Phome() {
                   <div className="d-flex mt-4 pt-2">
                     <div
                       className="col-md-1 d-flex"
-                      style={{ alignItems: "center" }}
+                      style={{ alignItems: "center", justifyContent: "center" }}
                     >
                       <i
                         className="fa-solid fa-location-crosshairs"
@@ -1312,360 +1776,1783 @@ function Phome() {
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="d-flex mt-4">
-                  <div className="col-md-10">
+                  <div
+                    className="d-flex mt-3"
+                    style={{
+                      backgroundColor: "aliceblue",
+                      padding: "10px",
+                      borderRadius: "5px",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <div className="col-md-9">
+                      <div
+                        onClick={() => setvisible(false)}
+                        className="poppins-regular"
+                        style={{ fontWeight: "bold" }}
+                      >
+                        {MyCartItems.length} Items added
+                      </div>
+                    </div>
+                    <div
+                      className="col-md-3 d-flex"
+                      style={{ justifyContent: "end", alignItems: "center" }}
+                    >
+                      <div onClick={() => setvisible(false)}>
+                        <i
+                          style={{ fontSize: "14px", color: "black" }}
+                          className="fa-solid fa-greater-than"
+                        ></i>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className="poppins-regular mt-3"
+                    style={{ fontWeight: "bold" }}
+                  >
+                    AddOns
+                  </div>
+
+                  <div className="row">
+                    <div className="">
+                      <Swiper
+                        slidesPerView={slidesPerView}
+                        spaceBetween={30}
+                        freeMode={true}
+                        pagination={{ clickable: true }}
+                        autoplay={{
+                          delay: 2500,
+                          disableOnInteraction: false,
+                        }}
+                        modules={[FreeMode, Pagination, Autoplay]}
+                        className="mySwiper"
+                        style={{
+                          width: "100%", // Make sure the Swiper takes full width
+                          height: "auto", // Adjust height as per your design
+                          padding: "10px", // Add padding for better layout
+                        }}
+                      >
+                        {alladdons.map((item) => (
+                          <SwiperSlide key={item._id}>
+                            <div className="d-flex flex-column align-items-center">
+                              <img
+                                src={item.imgUrl}
+                                alt={`${item.name} images`}
+                                className=""
+                                style={{
+                                  borderRadius: "10px",
+                                }}
+                              />
+                              <div className="poppins-regular mt-2">
+                                {item.name}
+                              </div>
+
+                              <div className="d-flex">
+                                {item.price ? (
+                                  <div
+                                    className="poppins-regular"
+                                    style={{
+                                      color: "grey",
+                                      textDecoration: "line-through",
+                                    }}
+                                  >
+                                    ₹ {item.price}
+                                  </div>
+                                ) : (
+                                  <></>
+                                )}
+
+                                <div
+                                  className="poppins-regular mx-2"
+                                  style={{
+                                    color: "black",
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  ₹ {item.offerPrice}
+                                </div>
+                              </div>
+
+                              {PMAddonsItems.find((i) => i.id === item?._id) ? (
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "row",
+                                    gap: "15px",
+                                    backgroundColor: "#57d357",
+                                    // padding: "5px",
+                                    borderRadius: "3px",
+                                    marginTop: "5px",
+                                    padding: "0px 10px",
+                                  }}
+                                >
+                                  <div
+                                    onClick={() => {
+                                      const cartItem = PMAddonsItems.find(
+                                        (i) => i.id === item?._id
+                                      );
+                                      if (cartItem.qty > 1) {
+                                        dispatch(
+                                          removePMAddonsCartItems(cartItem)
+                                        );
+                                      } else {
+                                        dispatch(
+                                          deletePMAddonsCartItems(cartItem.id)
+                                        );
+                                      }
+                                    }}
+                                    style={{
+                                      background: "none",
+                                      border: "none",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    <i
+                                      className="fa-solid fa-minus"
+                                      style={{
+                                        fontSize: "20px",
+                                      }}
+                                    ></i>
+                                  </div>
+                                  <span
+                                    className="poppins-regular"
+                                    style={{
+                                      color: "white",
+                                      // fontSize: "16px",
+                                      fontWeight: "bold",
+                                      marginTop: "4px",
+                                    }}
+                                  >
+                                    {
+                                      PMAddonsItems.find(
+                                        (i) => i.id === item._id
+                                      )?.qty
+                                    }
+                                  </span>
+                                  <div
+                                    onClick={() => handleAddToCartaddons(item)}
+                                    style={{
+                                      background: "none",
+                                      border: "none",
+                                      cursor: "pointer",
+                                      marginTop: "-2px",
+                                    }}
+                                  >
+                                    <i
+                                      className="fa-solid fa-plus"
+                                      style={{
+                                        fontSize: "16px",
+                                      }}
+                                    ></i>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div
+                                  onClick={() => handleAddToCartaddons(item)}
+                                  className="poppins-regular"
+                                  style={{
+                                    color: "green",
+                                    border: "1px solid green",
+                                    padding: "3px 25px",
+                                    borderRadius: "5px",
+                                    fontWeight: "bold",
+                                    marginTop: "5px",
+                                  }}
+                                >
+                                  Add
+                                </div>
+                              )}
+                            </div>
+                          </SwiperSlide>
+                        ))}
+                      </Swiper>
+                    </div>
+                  </div>
+
+                  <div className="d-flex">
+                    <div className="col-md-10">
+                      <i
+                        className="fa-solid fa-code"
+                        style={{
+                          fontSize: "15px",
+                          color: "green",
+                          position: "absolute",
+                          marginTop: "30px",
+                          marginLeft: "10px",
+                        }}
+                      ></i>
+
+                      <input
+                        type="text"
+                        placeholder="Enter referral or coupon code"
+                        className="poppins-regular mt-3 pm-input"
+                        value={couponCode}
+                        onChange={(e) => setcouponCode(e.target.value)}
+                      />
+                    </div>
+                    <div
+                      className="col-md-2 px-2 "
+                      style={{ alignItems: "center" }}
+                    >
+                      <div
+                        className="poppins-regular"
+                        style={{
+                          color: "green",
+                          // position: "absolute",
+                          // marginTop: "27px",
+                          // marginLeft: "540px",
+                          backgroundColor: "green",
+                          cursor: "pointer",
+                          color: "white",
+                          textAlign: "center",
+                          height: "40px",
+                          marginTop: "15px",
+                          paddingTop: "10px",
+                          borderRadius: "10px",
+                          width: "100%",
+                          padding: "10px",
+                        }}
+                        onClick={applyCoupon}
+                      >
+                        APPLY
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="poppins-black">Payment Summary</div>
+                  <div
+                    className="d-flex mt-3"
+                    style={{ justifyContent: "space-between" }}
+                  >
+                    <div className="col-md-8">
+                      <div className="poppins-regular">Quoted amount</div>
+                    </div>
+                    <div className="col-md-4">
+                      <div className="poppins-regular text-end">
+                        ₹{" "}
+                        {appliedValue !== null
+                          ? appliedValue.toFixed(0)
+                          : GrandTotal.toFixed(0)}
+                      </div>{" "}
+                    </div>
+                  </div>
+
+                  <div
+                    className="d-flex mt-3"
+                    style={{ justifyContent: "space-between" }}
+                  >
+                    <div className="col-md-8">
+                      <div
+                        className="poppins-regular"
+                        style={{ fontWeight: "bold" }}
+                      >
+                        Packers and Movers Service
+                      </div>
+                    </div>
+                    <div className="col-md-4">
+                      <div
+                        className="poppins-regular text-end"
+                        style={{ fontWeight: "bold" }}
+                      >
+                        ₹{" "}
+                        {/* {appliedValue !== null
+                        ? (appliedValue - 99).toFixed(0)
+                        : (GrandTotal - 99).toFixed(0)} */}
+                        {appliedValue !== null
+                          ? appliedValue.toFixed(0)
+                          : GrandTotal.toFixed(0)}
+                      </div>{" "}
+                    </div>
+                  </div>
+
+                  {PMAddonsItems.filter(
+                    (item) => item.qty > 0 && item.offerPrice > 0
+                  ) // Filter out items with qty or offerPrice equal to 0
+                    .map((item) => (
+                      <div
+                        className="d-flex mt-3"
+                        style={{ justifyContent: "space-between" }}
+                        key={item.id} // Ensure you have a unique key for each item
+                      >
+                        <div
+                          className="poppins-regular"
+                          style={{ color: "black" }}
+                        >
+                          {item.name}
+                        </div>
+                        <div
+                          className="poppins-regular"
+                          style={{ color: "black" }}
+                        >
+                          ₹{item.qty * item.offerPrice}
+                        </div>
+                      </div>
+                    ))}
+
+                  <div
+                    className="d-flex mt-3"
+                    style={{ justifyContent: "space-between" }}
+                  >
+                    <div className="col-md-8">
+                      <div
+                        className="poppins-regular"
+                        style={{ fontWeight: "bold" }}
+                      >
+                        Total amount to be paid
+                      </div>
+                    </div>
+                    <div className="col-md-4">
+                      <div
+                        className="poppins-regular text-end"
+                        style={{ fontWeight: "bold" }}
+                      >
+                        ₹ {GrandTotal + PMAddonstotal}
+                      </div>{" "}
+                    </div>
+                  </div>
+
+                  {/* <div className="d-flex mt-3">
+                  <div className="col-md-8">
                     <div
                       className="poppins-regular"
                       style={{ fontWeight: "bold" }}
                     >
-                      Service lift available at pickup
+                      Booking amount
                     </div>
-                    <div className="poppins-regular" style={{ color: "grey" }}>
-                      A working service lift will reduce the overall quote
-                    </div>
-                  </div>
-                  <div className="col-md-2">
-                    <Switch
-                      checked={pickupfloor}
-                      onChange={handlepickupfloor}
-                      onColor="#86d3ff"
-                      onHandleColor="#2693e6"
-                      handleDiameter={20}
-                      uncheckedIcon={false}
-                      checkedIcon={false}
-                      boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
-                      activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-                      height={20}
-                      width={48}
-                    />
-                  </div>
-                </div>
-
-                {pickupfloor && (
-                  <div className="mt-3">
-                    <input
-                      type="text"
-                      className="form-control poppins-regular"
-                      placeholder="Floor Number"
-                      value={pickupfloornumber}
-                      onChange={(e) => setpickupfloornumber(e.target.value)}
-                    />
-                  </div>
-                )}
-
-                <div className="d-flex mt-4">
-                  <div className="col-md-10">
                     <div
-                      className="poppins-regular"
+                      className="poppins-extralight"
+                      style={{ color: "grey" }}
+                    >
+                      An adjustable amount of Rs.99 needs to be paid for order
+                      confirmation
+                    </div>
+                  </div>
+                  <div className="col-md-4">
+                    <div
+                      className="poppins-regular text-end"
                       style={{ fontWeight: "bold" }}
                     >
-                      Service lift available at drop
-                    </div>
-                    <div className="poppins-regular" style={{ color: "grey" }}>
-                      A working service lift will reduce the overall quote
-                    </div>
+                      ₹ 99
+                    </div>{" "}
                   </div>
-                  <div className="col-md-2">
-                    <Switch
-                      checked={dropfloor}
-                      onChange={handledropfloor}
-                      onColor="#86d3ff"
-                      onHandleColor="#2693e6"
-                      handleDiameter={20}
-                      uncheckedIcon={false}
-                      checkedIcon={false}
-                      boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
-                      activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-                      height={20}
-                      width={48}
-                    />
+                </div> */}
+
+                  <div className="d-flex poppins-regular mt-3">
+                    By proceeding you accept the{" "}
+                    <span
+                      onClick={handleShow3}
+                      className=" poppins-regular mx-1"
+                      style={{
+                        textDecorationLine: "underline",
+                        color: "orange",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {" "}
+                      Terms & Conditions
+                    </span>
                   </div>
+
+                  <div
+                    onClick={handleShow1}
+                    className="d-flex mt-3"
+                    style={{
+                      backgroundColor: "aliceblue",
+                      padding: "10px",
+                      justifyContent: "space-between",
+                      borderRadius: "5px",
+                    }}
+                  >
+                    <div className="poppins-regular">
+                      <span>
+                        <i
+                          className="fa-solid fa-calendar-days"
+                          style={{ fontSize: "14px" }}
+                        ></i>
+                      </span>{" "}
+                      Shifting on
+                      <span className="mx-1">
+                        {selectedDate === null ? shiftingdate : selectedDate}
+                      </span>
+                    </div>
+                    <i
+                      className="fa-solid fa-pen-to-square"
+                      style={{ color: "black", fontSize: "14px" }}
+                    ></i>
+                  </div>
+
+                  <div
+                    onClick={handleSubmit1}
+                    className="poppins-black text-center mt-3"
+                    style={{
+                      backgroundColor: "orange",
+                      padding: "8px",
+                      borderRadius: "5px",
+                      borderRadius: "5px",
+                      color: "white",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Book Now
+                  </div>
+
+                  <Modal
+                    size="lg"
+                    show={show3}
+                    onHide={handleClose3}
+                    centered
+                    animation={false}
+                  >
+                    <Modal.Header closeButton>
+                      <Modal.Title className="poppins-black">
+                        Term and Conditions
+                      </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                      <div className="poppins-black">
+                        Booking Details and Modifications
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        1. Quotation and Changes:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • The provided quotation is based on the details
+                        provided by the customer, including the material list,
+                        movement date, and distance.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • If there are any deviations in the material list,
+                        movement date, or distance, a revised quotation will be
+                        offered based on the changes.
+                      </div>
+
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • For any revised quotation, the customer is expected to
+                        contact VHS customer care directly at 918453748478.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        2. Cancellation:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Free cancellation is allowed up to 24 hours before the
+                        scheduled shifting slot.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • If the cancellation is made after this timeframe, the
+                        booking amount will be forfeited.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        3. Partner Assignment and Details:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • For advance bookings, the partner will be assigned
+                        roughly 24 hours before the scheduled shifting.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • The details of the partner will be shared 1 hour prior
+                        to the shifting time slot.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        4. Packing Material:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • The Partner has the right to collect all the packing
+                        material after the shifting is over.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • If you wish to retain any carton boxes, you can do so
+                        by paying Rs. 60 per box.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        5. Price and Taxes:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • The price mentioned in the quotation is inclusive of
+                        any applicable taxes.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Please note that the price is subject to change based
+                        on slot availability at the time of any modification.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        6. Warehousing:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Warehousing facilities can be provided at an
+                        additional cost of Rs. 300 per day, subject to
+                        availability.
+                      </div>
+
+                      <div className="poppins-black mt-1">
+                        Payment Guidelines:
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        1. Within City and Outstation Orders:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • The remaining amount should be paid to the Partner at
+                        the destination once the shifting is completed.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        2. Intercity Orders:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • 80% of the remaining amount, after the booking amount
+                        has been paid, should be paid at the time of packing and
+                        loading at the pickup location.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • The remaining 20% should be paid at the destination
+                        before unloading on the date of delivery.
+                      </div>
+
+                      <div className="poppins-black mt-1">
+                        Goods and Items Details:
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        1. Packaging:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Electronic items, furniture, and fragile goods must be
+                        packed using multi-layer packaging for added protection.
+                        We highly recommend customers opt for this option.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Any damages occurring to goods that were not packaged
+                        or had single-layer packaging are not the responsibility
+                        of VHS, either partially or in full.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        2. Refrigerators:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Prior to packing, refrigerators must be defrosted at
+                        least 24 hours in advance to prevent water seepage
+                        during transportation.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        3. Restricted Items:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • The following goods are not acceptable for movement:
+                        jewelry, arms and ammunition, hazardous materials such
+                        as crackers, explosives, chemicals, battery acids,
+                        inflammable oils (e.g., diesel, petrol, kerosene,
+                        gasoline), narcotics, and counterfeit items.
+                      </div>
+
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Please keep all valuable items like cash and jewelry
+                        under your custody before the shifting process begins.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        4. Technical Assistance:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • If any machines, appliances, or electronic gadgets
+                        require the technical assistance of the manufacturer or
+                        their authorized dealer for locking/unlocking, it is the
+                        customer's responsibility to arrange for this
+                        assistance.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        5. AC Uninstallation and Installation:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Charges for AC uninstallation and installation cover
+                        only the service, and materials need to be purchased
+                        separately, which are not included in the quote.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Assembling does not include pipes, gas filling, extra
+                        wires, fittings, etc. These additional charges should be
+                        borne by the customer.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • VHS does not assume responsibility for any damage to
+                        copper pipes during assembling and dismantling.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        6. Vehicle Movement:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • For the movement of two-wheelers or four-wheelers, the
+                        fuel tank should be completely emptied.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Customers are requested not to hand over any
+                        accessories such as helmets or jackets along with the
+                        two-wheeler. Claims regarding such accessories will not
+                        be entertained.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Please provide a copy of the RC book, insurance, and
+                        pollution certificate for two-wheeler movement.
+                      </div>
+
+                      <div className="poppins-black mt-1">
+                        Important Information:
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        1. Delays and Restricted Entry:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Due to No Entry Hours in specific cities, restricted
+                        movement, festival days, or peak days, there might be
+                        delays in the arrival of the vehicle.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • It is essential to be aware of the timings during
+                        which external vehicles are allowed inside the premises.
+                        Some societies have shifting restrictions in the
+                        morning, evening, or on Sundays. Please check with the
+                        society before the shifting date.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • If any permissions are required, the customer should
+                        take them in advance from the Resident Welfare
+                        Association.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        2. Goods Transfer via Ropes:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • If there is a need to transfer goods using ropes, the
+                        decision to proceed with this method lies solely with
+                        the customer subject to availability.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • VHS will not be responsible for any damage to the
+                        goods in such cases.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        3. Internal Damages and Packing:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • VHS does not cover for any internal damages.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Damages to goods not packed by VHS's crew are not
+                        covered by VHS.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Any other damage during the shifting process must be
+                        reported to VHS Customer Care within 24 hours of
+                        shifting completion. No cases or claims will be
+                        entertained if not reported within this timeframe.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        4. Disputes and Changes:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • VHS will not entertain disputes regarding aspects that
+                        are not included in the quote and were not officially
+                        communicated to the VHS Support team when changes were
+                        made. It is important to get the quote updated
+                        accordingly.
+                      </div>
+
+                      <div
+                        className="poppins-regular mt-2 mb-1"
+                        style={{ color: "black", fontWeight: "600" }}
+                      >
+                        5. Vehicle Type and Delivery Time:
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • The vehicle type sent to customers on the shifting
+                        date is dependent solely on the Partner.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • For intercity orders, the delivery time will vary
+                        depending on the route and the type of service (Full
+                        Truck Load or Part Truck Load). Customers are requested
+                        to refer to the Delivery Time with the booking
+                        representative at the time of booking.
+                      </div>
+                      <div
+                        className="poppins-extralight mb-1"
+                        style={{ color: "grey" }}
+                      >
+                        • Please note that there might be a deviation of up to 2
+                        days from the expected delivery date.
+                      </div>
+                    </Modal.Body>
+                  </Modal>
                 </div>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
 
-                {dropfloor && (
-                  <div className="mt-3">
-                    <input
-                      type="text"
-                      className="form-control poppins-regular"
-                      placeholder="Floor Number"
-                      value={dropfloornumber}
-                      onChange={(e) => setdropfloornumber(e.target.value)}
-                    />
-                  </div>
-                )}
-
+      <div className="pm-mobile">
+        {!visible && !bookingshow ? (
+          <>
+            <div className="pm-mobile">
+              <div className="" style={{ margin: "10px" }}>
                 <div className="row">
-                  <div className="col-md-12">
+                  <div
+                    className="col-md-8 shadow-sm p-3 mb-5"
+                    style={{ borderRadius: "10px" }}
+                  >
+                    <div className="d-flex">
+                      <div className="d-flex" style={{ alignItems: "center" }}>
+                        <i
+                          className="fa-solid fa-arrow-left"
+                          style={{ fontSize: "18px", color: "darkred" }}
+                        ></i>
+                      </div>
+                      <div className="poppins-black mx-3">
+                        Add your Inventory
+                      </div>
+                    </div>
+
                     <div
-                      className="shadow-sm p-3 mb-3 mt-3"
-                      style={{ borderRadius: "10px" }}
+                      className="d-flex mt-3"
+                      style={{
+                        backgroundColor: "aliceblue",
+                        padding: "10px",
+                        borderRadius: "5px",
+                      }}
+                    >
+                      <img
+                        src={star}
+                        className=""
+                        alt="loading...."
+                        style={{ width: "20px", height: "20px" }}
+                      />
+                      <div
+                        className="poppins-regular mx-2"
+                        style={{ color: "grey" }}
+                      >
+                        By providing list of household items allows us to
+                        provide an accurate cost.
+                      </div>
+                    </div>
+
+                    <div className="">
+                      <input
+                        type="text"
+                        className="col-md-12 mt-3 poppins-regular"
+                        placeholder="Search for a household item to add"
+                        style={{
+                          border: "1px solid grey",
+                          height: "45px",
+                          textAlign: "left",
+                          paddingLeft: "45px",
+                        }}
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                      <i
+                        className="fa-solid fa-magnifying-glass p-search-icon"
+                        style={{
+                          color: "grey",
+                          position: "absolute",
+                          left: "91px",
+                          fontSize: "18px",
+                          marginTop: "29px",
+                          marginLeft: "-17px",
+                        }}
+                      ></i>
+                    </div>
+
+                    {/* <div className="row" style={{ justifyContent: "center" }}>
+                  <div className="col-md-3 col-6 pb-3">
+                    <div
+                      onClick={handleShow}
+                      className="poppins-regular"
+                      style={{
+                        border: "1px solid grey",
+                        textAlign: "center",
+                        borderRadius: "20px",
+                        padding: "6px 9px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Added Items ({MyCartItems.length || 0})
+                    </div>
+                  </div>
+                  {categoryData.map((item, index) => (
+                    <div className="col-md-3 col-6 pb-3" key={index}>
+                      <div
+                        onClick={() => handleCategoryClick(item.category)}
+                        className="poppins-regular"
+                        style={{
+                          border: "1px solid grey",
+                          textAlign: "center",
+                          borderRadius: "20px",
+                          padding: "6px 9px",
+                          cursor: "pointer",
+                          color:
+                            activeCategory === item.category
+                              ? "white"
+                              : "black",
+                          backgroundColor:
+                            activeCategory === item.category
+                              ? "#FF8343"
+                              : "transparent",
+                        }}
+                      >
+                        {item.category}
+                      </div>
+                    </div>
+                  ))}
+                </div> */}
+
+                    <div
+                      style={{
+                        overflowX: "auto", // Enable horizontal scrolling
+                        whiteSpace: "nowrap", // Prevent items from wrapping to the next line
+                      }}
                     >
                       <div
                         className="d-flex"
-                        style={{ justifyContent: "space-between" }}
-                      >
-                        <div className="col-md-8">
-                          <div className="poppins-black">Base Price</div>
-                        </div>
-                        <div className="col-md-4">
-                          <div
-                            className="poppins-black text-end"
-                            style={{ color: "green" }}
-                          >
-                            ₹ {displayGrandTotal.toFixed(0)}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div
-                        className="d-flex mt-3"
-                        style={{ alignItems: "center" }}
-                      >
-                        <i
-                          className="fa-solid fa-circle-check"
-                          style={{ color: "green", fontSize: "14px" }}
-                        ></i>
-                        <div className="poppins-regular ms-2">
-                          Friendly and professional movers
-                        </div>
-                      </div>
-
-                      <div
-                        className="d-flex mt-3"
-                        style={{ alignItems: "center" }}
-                      >
-                        <i
-                          className="fa-solid fa-circle-check"
-                          style={{ color: "green", fontSize: "14px" }}
-                        ></i>
-                        <div className="poppins-regular ms-2">
-                          Loading and unloading included
-                        </div>
-                      </div>
-
-                      <div
-                        className="d-flex mt-3"
-                        style={{ alignItems: "center" }}
-                      >
-                        <i
-                          className="fa-solid fa-circle-check"
-                          style={{ color: "green", fontSize: "14px" }}
-                        ></i>
-                        <div className="poppins-regular ms-2">
-                          Transport items safely with a dedicated vehicle
-                        </div>
-                      </div>
-                      <div
-                        className="d-flex mt-3"
-                        style={{ alignItems: "center" }}
-                      >
-                        <i
-                          className="fa-solid fa-circle-check"
-                          style={{ color: "green", fontSize: "14px" }}
-                        ></i>
-                        <div className="poppins-regular ms-2">
-                          Rearrangement of big items
-                        </div>
-                      </div>
-
-                      <div className="poppins-black mt-3">
-                        Recommended add ons for you
-                      </div>
-
-                      <div
-                        className="d-flex pt-2"
-                        style={{ justifyContent: "space-between" }}
-                      >
-                        <div className="col-md-8">
-                          <div className="poppins-regular">
-                            Single-layer packing
-                          </div>
-                          <div className="poppins-regular">₹ {packingAmt}</div>
-                        </div>
-                        <div
-                          className="col-md-4 d-flex"
-                          style={{ justifyContent: "end" }}
-                        >
-                          <Switch
-                            checked={singleLayer}
-                            onChange={singleLayerSwitch}
-                            onColor="#86d3ff"
-                            onHandleColor="#2693e6"
-                            handleDiameter={20}
-                            uncheckedIcon={false}
-                            checkedIcon={false}
-                            boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
-                            activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-                            height={20}
-                            width={48}
-                          />
-                        </div>
-                      </div>
-                      <div
-                        className="d-flex pt-3"
-                        style={{ justifyContent: "space-between" }}
-                      >
-                        <div className="col-md-8">
-                          <div className="poppins-regular">
-                            Multi-layer packing
-                          </div>
-                          <div className="poppins-regular">
-                            ₹ {packingAmt * 2}
-                          </div>
-                        </div>
-                        <div
-                          className="col-md-4 d-flex"
-                          style={{ justifyContent: "end" }}
-                        >
-                          <Switch
-                            checked={multilayer}
-                            onChange={multilayerSwitch}
-                            onColor="#86d3ff"
-                            onHandleColor="#2693e6"
-                            handleDiameter={20}
-                            uncheckedIcon={false}
-                            checkedIcon={false}
-                            boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
-                            activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-                            height={20}
-                            width={48}
-                          />
-                        </div>
-                      </div>
-
-                      <div
-                        className="d-flex pt-3"
-                        style={{ justifyContent: "space-between" }}
-                      >
-                        <div className="col-md-8">
-                          <div className="poppins-regular">
-                            Unpacking all the packed items{" "}
-                          </div>
-                          <div className="poppins-regular">₹ {packingAmt}</div>
-                        </div>
-                        <div
-                          className="col-md-4 d-flex"
-                          style={{ justifyContent: "end" }}
-                        >
-                          <Switch
-                            checked={unpacking}
-                            onChange={unpackingSwitch}
-                            onColor="#86d3ff"
-                            onHandleColor="#2693e6"
-                            handleDiameter={20}
-                            uncheckedIcon={false}
-                            checkedIcon={false}
-                            boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
-                            activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-                            height={20}
-                            width={48}
-                          />
-                        </div>
-                      </div>
-
-                      <div
-                        className="d-flex pt-3"
-                        style={{ justifyContent: "space-between" }}
-                      >
-                        <div className="col-md-8">
-                          <div className="poppins-regular">
-                            {" "}
-                            Dismantling and reassembly of basic
-                          </div>
-                          <div className="poppins-regular">₹ {packingAmt}</div>
-                        </div>
-                        <div
-                          className="col-md-4 d-flex"
-                          style={{ justifyContent: "end" }}
-                        >
-                          <Switch
-                            checked={dismantling}
-                            onChange={dismantlingSwitch}
-                            onColor="#86d3ff"
-                            onHandleColor="#2693e6"
-                            handleDiameter={20}
-                            uncheckedIcon={false}
-                            checkedIcon={false}
-                            boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
-                            activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
-                            height={20}
-                            width={48}
-                          />
-                        </div>
-                      </div>
-
-                      <div
-                        className="poppins-regular mt-4"
                         style={{
-                          backgroundColor: "green",
-                          padding: "5px",
-                          borderRadius: "5px",
-                          color: "white",
+                          gap: "10px",
+                          flexWrap: "nowrap",
                         }}
                       >
-                        <span>
-                          <i
-                            className="fa-solid fa-circle-info mx-2"
-                            style={{ color: "white", fontSize: "14px" }}
-                          ></i>
-                        </span>
-                        Pay booking amount of 99 to place the order
-                      </div>
-
-                      <div
-                        className="d-flex p-3"
-                        style={{ justifyContent: "space-between" }}
-                      >
                         <div
-                          className="col-md-9 d-flex"
-                          style={{ alignItems: "center" }}
+                          className=" pb-3"
+                          style={{ display: "inline-block" }}
                         >
                           <div
-                            className="poppins-black"
                             onClick={handleShow}
-                            style={{ cursor: "pointer" }}
-                          >
-                            ₹ {displayGrandTotal.toFixed(0)}
-                          </div>
-                        </div>
-                        <div className="col-md-3">
-                          <div
-                            onClick={handleContinueClick}
-                            className="poppins-black"
+                            className="poppins-regular"
                             style={{
-                              backgroundColor: "red",
-                              color: "white",
+                              border: "1px solid grey",
                               textAlign: "center",
-                              padding: "5px 10px",
                               borderRadius: "5px",
+                              padding: "6px 9px",
                               cursor: "pointer",
+                              display: "inline-block", // Ensure inline behavior
                             }}
                           >
-                            Next
+                            Added Items ({MyCartItems.length || 0})
                           </div>
+                        </div>
+                        {categoryData.map((item, index) => (
+                          <div
+                            className=" pb-3"
+                            key={index}
+                            // style={{ display: "inline-block" }}
+                          >
+                            <div
+                              onClick={() => handleCategoryClick(item.category)}
+                              className="poppins-regular"
+                              style={{
+                                border: "1px solid grey",
+                                textAlign: "center",
+                                borderRadius: "5px",
+                                padding: "6px 9px",
+                                cursor: "pointer",
+                                display: "inline-block", // Ensure inline behavior
+                                color:
+                                  activeCategory === item.category
+                                    ? "white"
+                                    : "black",
+                                backgroundColor:
+                                  activeCategory === item.category
+                                    ? "#FF8343"
+                                    : "transparent",
+                              }}
+                            >
+                              {item.category}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div
+                      className="row    mt-2"
+                      style={{
+                        borderRadius: "10px",
+                        height: "auto",
+                        // overflowY: "scroll",
+                      }}
+                    >
+                      <div>
+                        {Object.entries(groupedItems)
+                          // Show all categories if no category is clicked, otherwise filter by activeCategory
+                          .filter(
+                            ([category]) =>
+                              !activeCategory || activeCategory === category
+                          )
+                          .map(([category, subcategories], catIndex) => (
+                            <div
+                              key={catIndex}
+                              style={{ marginBottom: "20px" }}
+                            >
+                              <h2
+                                ref={(el) =>
+                                  (categoryRefs.current[category] = el)
+                                }
+                                className="poppins-black"
+                                style={{ color: "darkred" }}
+                              >
+                                {category}
+                              </h2>
+
+                              {/* Subcategories */}
+                              {Object.entries(subcategories).map(
+                                ([subcategory, items], subIndex) => (
+                                  <div key={subIndex}>
+                                    <div
+                                      onClick={() =>
+                                        handleSubcategoryClick(subcategory)
+                                      }
+                                      className="poppins-regular"
+                                      style={{
+                                        backgroundColor: "white",
+                                        borderRadius: "5px",
+                                        padding: "10px",
+                                        border: "1px solid lightgrey",
+                                        marginBottom: "10px",
+                                        fontWeight: "bold",
+                                        cursor: "pointer",
+                                      }}
+                                    >
+                                      {subcategory}
+
+                                      {/* Display items if the subcategory is active */}
+                                      {activeSubcategory === subcategory &&
+                                        items.map((item) => (
+                                          <div
+                                            className="d-flex mt-2"
+                                            style={{
+                                              borderBottom:
+                                                "1px solid lightgrey",
+                                              borderBottomStyle: "dashed",
+                                              justifyContent: "space-between",
+                                            }}
+                                            key={item._id}
+                                          >
+                                            <div
+                                              className="col-md-8 p-2"
+                                              style={{
+                                                display: "flex",
+                                                alignItems: "center",
+                                                borderRadius: "5px",
+                                              }}
+                                            >
+                                              <div className="poppins-regular">
+                                                {item.itemname}
+                                              </div>
+                                            </div>
+                                            <div className="col-md-4 p-2">
+                                              <div
+                                                className="d-flex"
+                                                style={{
+                                                  justifyContent: "end",
+                                                }}
+                                              >
+                                                {MyCartItems.find(
+                                                  (i) => i.id === item._id
+                                                ) ? (
+                                                  <div
+                                                    className="d-flex"
+                                                    style={{
+                                                      justifyContent:
+                                                        "space-between",
+                                                      border: "1px solid green",
+                                                      borderRadius: "5px",
+                                                      padding: "0px 10px",
+                                                    }}
+                                                  >
+                                                    <div className="col-md-3 ">
+                                                      <i
+                                                        onClick={() =>
+                                                          handleDecrementQuantity(
+                                                            item
+                                                          )
+                                                        }
+                                                        className="fa-solid fa-minus"
+                                                        style={{
+                                                          fontSize: "16px",
+                                                          // border: "1px solid black",
+                                                          padding: "5px",
+                                                          textAlign: "center",
+                                                          color: "green",
+                                                        }}
+                                                      ></i>
+                                                    </div>
+                                                    <div className="col-md-2">
+                                                      <div
+                                                        className="poppins-regular text-center mx-1 mt-1 px-1"
+                                                        style={{
+                                                          color: "green",
+                                                        }}
+                                                      >
+                                                        {MyCartItems.find(
+                                                          (i) =>
+                                                            i.id === item._id
+                                                        )?.qty || 0}
+                                                      </div>
+                                                    </div>
+                                                    <div
+                                                      className="col-md-3 d-flex"
+                                                      style={{
+                                                        alignItems:
+                                                          "flex-start",
+                                                      }}
+                                                    >
+                                                      <i
+                                                        onClick={() =>
+                                                          handleIncrementQuantity(
+                                                            item
+                                                          )
+                                                        }
+                                                        className="fa-solid fa-plus"
+                                                        style={{
+                                                          fontSize: "16px",
+                                                          // border: "1px solid black",
+                                                          padding: "5px",
+                                                          color: "green",
+                                                        }}
+                                                      ></i>
+                                                    </div>
+                                                  </div>
+                                                ) : (
+                                                  // <div
+                                                  //   className="poppins-regular"
+                                                  //   style={{
+                                                  //     backgroundColor: "green",
+                                                  //     color: "white",
+                                                  //     textAlign: "center",
+                                                  //     padding: "5px",
+                                                  //     borderRadius: "10px",
+                                                  //     width: "78px",
+                                                  //     cursor: "pointer",
+                                                  //   }}
+                                                  // onClick={() =>
+                                                  //   handleAddToCart(
+                                                  //     item,
+                                                  //     category,
+                                                  //     subcategory
+                                                  //   )
+                                                  // }
+                                                  // >
+                                                  //   Add
+                                                  // </div>
+                                                  <div
+                                                    className=""
+                                                    onClick={() =>
+                                                      handleAddToCart(
+                                                        item,
+                                                        category,
+                                                        subcategory
+                                                      )
+                                                    }
+                                                    style={{
+                                                      border: "1px solid green",
+                                                      padding: "5px 8px",
+                                                      borderRadius: "5px",
+                                                    }}
+                                                  >
+                                                    <i
+                                                      className="fa-solid fa-plus"
+                                                      style={{
+                                                        fontSize: "16px",
+                                                        color: "green",
+                                                      }}
+                                                    ></i>
+                                                  </div>
+                                                )}
+                                              </div>
+                                            </div>
+                                          </div>
+                                        ))}
+                                    </div>
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+
+                    <div
+                      onClick={handleShow4}
+                      className="d-flex mt-3"
+                      style={{
+                        backgroundColor: "aliceblue",
+                        padding: "10px",
+                        borderRadius: "5px",
+                        justifyContent: "space-between",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <div
+                        className="poppins-regular mx-2"
+                        style={{ color: "grey" }}
+                      >
+                        Get a video inspection for{" "}
+                        <span
+                          className="poppins-regular"
+                          style={{
+                            backgroundColor: "green",
+                            padding: "3px",
+                            color: "white",
+                            borderRadius: "5px",
+                          }}
+                        >
+                          Free
+                        </span>
+                      </div>
+                      <i
+                        className="fa-solid fa-circle-arrow-right"
+                        style={{ fontSize: "18px" }}
+                      ></i>
+                    </div>
+
+                    <div
+                      className="d-flex p-3"
+                      style={{ justifyContent: "space-between" }}
+                    >
+                      <div
+                        className="col-md-9 "
+                        style={{ alignItems: "center" }}
+                      >
+                        <div
+                          className="poppins-black"
+                          style={{ cursor: "pointer" }}
+                        >
+                          Total Items ({MyCartItems.length || 0})
+                        </div>{" "}
+                        <div
+                          onClick={handleShow2}
+                          className="poppins-black pt-2"
+                          style={{ color: "skyblue", cursor: "pointer" }}
+                        >
+                          View All{" "}
+                          <span className="mx-1">
+                            <i
+                              className="fa-solid fa-greater-than"
+                              style={{ color: "skyblue", fontSize: "13px" }}
+                            ></i>
+                          </span>
+                        </div>
+                      </div>
+                      <div className="col-md-3 ">
+                        <div
+                          onClick={handleContinueClick}
+                          className="poppins-black"
+                          style={{
+                            backgroundColor: "red",
+                            color: "white",
+                            textAlign: "center",
+                            padding: "5px",
+                            borderRadius: "5px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          Continue
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="col-md-6">
-                    {/* <div className="poppins-black">Packers Movers Page</div> */}
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="container">
-            <div className="row p-4 mb-5" style={{ justifyContent: "center" }}>
+          </>
+        ) : visible && !bookingshow ? (
+          <div className="row pm-mobile" style={{ margin: "10px" }}>
+            <div
+              className="shadow-sm p-3  mt-3"
+              style={{
+                borderRadius: "10px",
+                height: "auto",
+                border: "2px solid darkred",
+              }}
+            >
+              <div className="poppins-black">Address</div>
+
+              <div className="d-flex mt-3">
+                <div
+                  className="col-md-1 d-flex"
+                  style={{ alignItems: "center" }}
+                >
+                  <i
+                    className="fa-solid fa-location-crosshairs"
+                    style={{ fontSize: "20px", color: "green" }}
+                  ></i>
+                </div>
+                <div className="col-md-11 px-1">
+                  <div
+                    className="poppins-regular"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 1,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      color: "green",
+                    }}
+                  >
+                    {pickupLocation}
+                  </div>
+                </div>
+              </div>
+
               <div
-                className="col-md-7 shadow-sm  p-3"
+                className=""
+                style={{
+                  borderLeft: "1px solid grey",
+                  height: "31px",
+                  borderLeftStyle: "dashed",
+                  marginLeft: "10px",
+                  position: "absolute",
+                }}
+              ></div>
+
+              <div className="d-flex mt-4 pt-2">
+                <div
+                  className="col-md-1 d-flex"
+                  style={{ alignItems: "center" }}
+                >
+                  <i
+                    className="fa-solid fa-location-crosshairs"
+                    style={{ fontSize: "20px", color: "red" }}
+                  ></i>
+                </div>
+                <div className="col-md-11 px-1">
+                  <div
+                    className="poppins-regular"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 1,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      color: "red",
+                    }}
+                  >
+                    {dropLocation}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              className="d-flex mt-4"
+              style={{ justifyContent: "space-between" }}
+            >
+              <div className="col-md-10">
+                <div className="poppins-regular" style={{ fontWeight: "bold" }}>
+                  Service lift available at pickup
+                </div>
+                <div className="poppins-regular" style={{ color: "grey" }}>
+                  A working service lift will reduce the overall quote
+                </div>
+              </div>
+              <div className="col-md-2">
+                <Switch
+                  checked={pickupfloor}
+                  onChange={handlepickupfloor}
+                  onColor="#86d3ff"
+                  onHandleColor="#2693e6"
+                  handleDiameter={20}
+                  uncheckedIcon={false}
+                  checkedIcon={false}
+                  boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                  activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                  height={20}
+                  width={48}
+                />
+              </div>
+            </div>
+
+            {pickupfloor && (
+              <div className="mt-3">
+                <input
+                  type="text"
+                  className="form-control poppins-regular"
+                  placeholder="Floor Number"
+                  value={pickupfloornumber}
+                  onChange={(e) => setpickupfloornumber(e.target.value)}
+                />
+              </div>
+            )}
+
+            <div
+              className="d-flex mt-4"
+              style={{ justifyContent: "space-between" }}
+            >
+              <div className="col-md-10">
+                <div className="poppins-regular" style={{ fontWeight: "bold" }}>
+                  Service lift available at drop
+                </div>
+                <div className="poppins-regular" style={{ color: "grey" }}>
+                  A working service lift will reduce the overall quote
+                </div>
+              </div>
+              <div className="col-md-2">
+                <Switch
+                  checked={dropfloor}
+                  onChange={handledropfloor}
+                  onColor="#86d3ff"
+                  onHandleColor="#2693e6"
+                  handleDiameter={20}
+                  uncheckedIcon={false}
+                  checkedIcon={false}
+                  boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                  activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                  height={20}
+                  width={48}
+                />
+              </div>
+            </div>
+
+            {dropfloor && (
+              <div className="mt-3">
+                <input
+                  type="text"
+                  className="form-control poppins-regular"
+                  placeholder="Floor Number"
+                  value={dropfloornumber}
+                  onChange={(e) => setdropfloornumber(e.target.value)}
+                />
+              </div>
+            )}
+
+            <div className="row">
+              <div
+                className="shadow-sm p-3 mb-3 mt-3"
                 style={{ borderRadius: "10px" }}
               >
-                <div className="d-flex">
+                <div
+                  className="d-flex"
+                  style={{ justifyContent: "space-between" }}
+                >
+                  <div className="col-md-8">
+                    <div className="poppins-black">Base Price</div>
+                  </div>
+                  <div className="col-md-4">
+                    <div
+                      className="poppins-black text-end"
+                      style={{ color: "green" }}
+                    >
+                      ₹ {displayGrandTotal.toFixed(0)}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="d-flex mt-3" style={{ alignItems: "center" }}>
+                  <i
+                    className="fa-solid fa-circle-check"
+                    style={{ color: "green", fontSize: "14px" }}
+                  ></i>
+                  <div className="poppins-regular ms-2">
+                    Friendly and professional movers
+                  </div>
+                </div>
+
+                <div className="d-flex mt-3" style={{ alignItems: "center" }}>
+                  <i
+                    className="fa-solid fa-circle-check"
+                    style={{ color: "green", fontSize: "14px" }}
+                  ></i>
+                  <div className="poppins-regular ms-2">
+                    Loading and unloading included
+                  </div>
+                </div>
+
+                <div className="d-flex mt-3" style={{ alignItems: "center" }}>
+                  <i
+                    className="fa-solid fa-circle-check"
+                    style={{ color: "green", fontSize: "14px" }}
+                  ></i>
+                  <div className="poppins-regular ms-2">
+                    Transport items safely with a dedicated vehicle
+                  </div>
+                </div>
+                <div className="d-flex mt-3" style={{ alignItems: "center" }}>
+                  <i
+                    className="fa-solid fa-circle-check"
+                    style={{ color: "green", fontSize: "14px" }}
+                  ></i>
+                  <div className="poppins-regular ms-2">
+                    Rearrangement of big items
+                  </div>
+                </div>
+
+                <div className="poppins-black mt-3">
+                  Recommended add ons for you
+                </div>
+
+                <div
+                  className="d-flex pt-2"
+                  style={{ justifyContent: "space-between" }}
+                >
+                  <div className="col-md-8">
+                    <div className="poppins-regular">Single-layer packing</div>
+                    <div className="poppins-regular">₹ {packingAmt}</div>
+                  </div>
+                  <div
+                    className="col-md-4 d-flex"
+                    style={{ justifyContent: "end" }}
+                  >
+                    <Switch
+                      checked={singleLayer}
+                      onChange={singleLayerSwitch}
+                      onColor="#86d3ff"
+                      onHandleColor="#2693e6"
+                      handleDiameter={20}
+                      uncheckedIcon={false}
+                      checkedIcon={false}
+                      boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                      activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                      height={20}
+                      width={48}
+                    />
+                  </div>
+                </div>
+                <div
+                  className="d-flex pt-3"
+                  style={{ justifyContent: "space-between" }}
+                >
+                  <div className="col-md-8">
+                    <div className="poppins-regular">Multi-layer packing</div>
+                    <div className="poppins-regular">₹ {packingAmt * 2}</div>
+                  </div>
+                  <div
+                    className="col-md-4 d-flex"
+                    style={{ justifyContent: "end" }}
+                  >
+                    <Switch
+                      checked={multilayer}
+                      onChange={multilayerSwitch}
+                      onColor="#86d3ff"
+                      onHandleColor="#2693e6"
+                      handleDiameter={20}
+                      uncheckedIcon={false}
+                      checkedIcon={false}
+                      boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                      activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                      height={20}
+                      width={48}
+                    />
+                  </div>
+                </div>
+
+                <div
+                  className="d-flex pt-3"
+                  style={{ justifyContent: "space-between" }}
+                >
+                  <div className="col-md-8">
+                    <div className="poppins-regular">
+                      Unpacking all the packed items{" "}
+                    </div>
+                    <div className="poppins-regular">₹ {packingAmt}</div>
+                  </div>
+                  <div
+                    className="col-md-4 d-flex"
+                    style={{ justifyContent: "end" }}
+                  >
+                    <Switch
+                      checked={unpacking}
+                      onChange={unpackingSwitch}
+                      onColor="#86d3ff"
+                      onHandleColor="#2693e6"
+                      handleDiameter={20}
+                      uncheckedIcon={false}
+                      checkedIcon={false}
+                      boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                      activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                      height={20}
+                      width={48}
+                    />
+                  </div>
+                </div>
+
+                <div
+                  className="d-flex pt-3"
+                  style={{ justifyContent: "space-between" }}
+                >
+                  <div className="col-md-8">
+                    <div className="poppins-regular">
+                      {" "}
+                      Dismantling and reassembly of basic
+                    </div>
+                    <div className="poppins-regular">₹ {packingAmt}</div>
+                  </div>
+                  <div
+                    className="col-md-4 d-flex"
+                    style={{ justifyContent: "end" }}
+                  >
+                    <Switch
+                      checked={dismantling}
+                      onChange={dismantlingSwitch}
+                      onColor="#86d3ff"
+                      onHandleColor="#2693e6"
+                      handleDiameter={20}
+                      uncheckedIcon={false}
+                      checkedIcon={false}
+                      boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                      activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                      height={20}
+                      width={48}
+                    />
+                  </div>
+                </div>
+
+                <div
+                  className="poppins-regular mt-4"
+                  style={{
+                    backgroundColor: "green",
+                    padding: "5px",
+                    borderRadius: "5px",
+                    color: "white",
+                  }}
+                >
+                  <span>
+                    <i
+                      className="fa-solid fa-circle-info mx-2"
+                      style={{ color: "white", fontSize: "14px" }}
+                    ></i>
+                  </span>
+                  Pay booking amount of 99 to place the order
+                </div>
+
+                <div
+                  className="d-flex p-3 mb-3"
+                  style={{ justifyContent: "space-between" }}
+                >
+                  <div
+                    className="col-md-9 d-flex"
+                    style={{ alignItems: "center" }}
+                  >
+                    <div
+                      className="poppins-black"
+                      onClick={handleShow}
+                      style={{ cursor: "pointer" }}
+                    >
+                      ₹ {displayGrandTotal.toFixed(0)}
+                    </div>
+                  </div>
+                  <div className="col-md-3">
+                    <div
+                      onClick={handlebookingshow}
+                      className="poppins-black"
+                      style={{
+                        backgroundColor: "red",
+                        color: "white",
+                        textAlign: "center",
+                        padding: "5px 10px",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Next
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-md-6">
+                {/* <div className="poppins-black">Packers Movers Page</div> */}
+              </div>
+            </div>
+          </div>
+        ) : bookingshow ? (
+          <div className="pm-mobile container">
+            <div className="row  mb-5" style={{ justifyContent: "center" }}>
+              <div
+                className="col-md-12 shadow-sm  p-3"
+                style={{ borderRadius: "10px" }}
+              >
+                <div className="d-flex" onClick={() => setbookingshow(false)}>
                   <div className="d-flex" style={{ alignItems: "center" }}>
                     <i
                       className="fa-solid fa-arrow-left"
@@ -1771,6 +3658,8 @@ function Phome() {
                   </div>
                 </div>
 
+                {/* Addons */}
+
                 <div
                   className="poppins-regular mt-3"
                   style={{ fontWeight: "bold" }}
@@ -1806,9 +3695,13 @@ function Phome() {
                               className=""
                               style={{
                                 borderRadius: "10px",
+                                textAlign: "center",
                               }}
                             />
-                            <div className="poppins-regular mt-2">
+                            <div
+                              className="poppins-regular mt-2"
+                              style={{ textAlign: "center" }}
+                            >
                               {item.name}
                             </div>
 
@@ -1933,8 +3826,11 @@ function Phome() {
                   </div>
                 </div>
 
-                <div className="d-flex">
-                  <div className="col-md-10">
+                <div
+                  className="d-flex"
+                  style={{ justifyContent: "space-between" }}
+                >
+                  <div className="col-9">
                     <i
                       className="fa-solid fa-code"
                       style={{
@@ -1950,14 +3846,12 @@ function Phome() {
                       type="text"
                       placeholder="Enter referral or coupon code"
                       className="poppins-regular mt-3 pm-input"
+                      style={{ width: "100%" }}
                       value={couponCode}
                       onChange={(e) => setcouponCode(e.target.value)}
                     />
                   </div>
-                  <div
-                    className="col-md-2 px-2 "
-                    style={{ alignItems: "center" }}
-                  >
+                  <div className="col-3 px-2" style={{ alignItems: "center" }}>
                     <div
                       className="poppins-regular"
                       style={{
@@ -2020,8 +3914,8 @@ function Phome() {
                     >
                       ₹{" "}
                       {/* {appliedValue !== null
-                        ? (appliedValue - 99).toFixed(0)
-                        : (GrandTotal - 99).toFixed(0)} */}
+                      ? (appliedValue - 99).toFixed(0)
+                      : (GrandTotal - 99).toFixed(0)} */}
                       {appliedValue !== null
                         ? appliedValue.toFixed(0)
                         : GrandTotal.toFixed(0)}
@@ -2074,32 +3968,6 @@ function Phome() {
                     </div>{" "}
                   </div>
                 </div>
-
-                {/* <div className="d-flex mt-3">
-                  <div className="col-md-8">
-                    <div
-                      className="poppins-regular"
-                      style={{ fontWeight: "bold" }}
-                    >
-                      Booking amount
-                    </div>
-                    <div
-                      className="poppins-extralight"
-                      style={{ color: "grey" }}
-                    >
-                      An adjustable amount of Rs.99 needs to be paid for order
-                      confirmation
-                    </div>
-                  </div>
-                  <div className="col-md-4">
-                    <div
-                      className="poppins-regular text-end"
-                      style={{ fontWeight: "bold" }}
-                    >
-                      ₹ 99
-                    </div>{" "}
-                  </div>
-                </div> */}
 
                 <div className="d-flex poppins-regular mt-3">
                   By proceeding you accept the{" "}
@@ -2160,477 +4028,11 @@ function Phome() {
                 >
                   Book Now
                 </div>
-
-                <Modal
-                  size="lg"
-                  show={show3}
-                  onHide={handleClose3}
-                  centered
-                  animation={false}
-                >
-                  <Modal.Header closeButton>
-                    <Modal.Title className="poppins-black">
-                      Term and Conditions
-                    </Modal.Title>
-                  </Modal.Header>
-                  <Modal.Body>
-                    <div className="poppins-black">
-                      Booking Details and Modifications
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      1. Quotation and Changes:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • The provided quotation is based on the details provided
-                      by the customer, including the material list, movement
-                      date, and distance.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • If there are any deviations in the material list,
-                      movement date, or distance, a revised quotation will be
-                      offered based on the changes.
-                    </div>
-
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • For any revised quotation, the customer is expected to
-                      contact VHS customer care directly at 918453748478.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      2. Cancellation:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Free cancellation is allowed up to 24 hours before the
-                      scheduled shifting slot.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • If the cancellation is made after this timeframe, the
-                      booking amount will be forfeited.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      3. Partner Assignment and Details:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • For advance bookings, the partner will be assigned
-                      roughly 24 hours before the scheduled shifting.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • The details of the partner will be shared 1 hour prior
-                      to the shifting time slot.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      4. Packing Material:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • The Partner has the right to collect all the packing
-                      material after the shifting is over.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • If you wish to retain any carton boxes, you can do so by
-                      paying Rs. 60 per box.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      5. Price and Taxes:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • The price mentioned in the quotation is inclusive of any
-                      applicable taxes.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Please note that the price is subject to change based on
-                      slot availability at the time of any modification.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      6. Warehousing:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Warehousing facilities can be provided at an additional
-                      cost of Rs. 300 per day, subject to availability.
-                    </div>
-
-                    <div className="poppins-black mt-1">
-                      Payment Guidelines:
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      1. Within City and Outstation Orders:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • The remaining amount should be paid to the Partner at
-                      the destination once the shifting is completed.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      2. Intercity Orders:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • 80% of the remaining amount, after the booking amount
-                      has been paid, should be paid at the time of packing and
-                      loading at the pickup location.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • The remaining 20% should be paid at the destination
-                      before unloading on the date of delivery.
-                    </div>
-
-                    <div className="poppins-black mt-1">
-                      Goods and Items Details:
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      1. Packaging:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Electronic items, furniture, and fragile goods must be
-                      packed using multi-layer packaging for added protection.
-                      We highly recommend customers opt for this option.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Any damages occurring to goods that were not packaged or
-                      had single-layer packaging are not the responsibility of
-                      VHS, either partially or in full.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      2. Refrigerators:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Prior to packing, refrigerators must be defrosted at
-                      least 24 hours in advance to prevent water seepage during
-                      transportation.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      3. Restricted Items:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • The following goods are not acceptable for movement:
-                      jewelry, arms and ammunition, hazardous materials such as
-                      crackers, explosives, chemicals, battery acids,
-                      inflammable oils (e.g., diesel, petrol, kerosene,
-                      gasoline), narcotics, and counterfeit items.
-                    </div>
-
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Please keep all valuable items like cash and jewelry
-                      under your custody before the shifting process begins.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      4. Technical Assistance:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • If any machines, appliances, or electronic gadgets
-                      require the technical assistance of the manufacturer or
-                      their authorized dealer for locking/unlocking, it is the
-                      customer's responsibility to arrange for this assistance.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      5. AC Uninstallation and Installation:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Charges for AC uninstallation and installation cover
-                      only the service, and materials need to be purchased
-                      separately, which are not included in the quote.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Assembling does not include pipes, gas filling, extra
-                      wires, fittings, etc. These additional charges should be
-                      borne by the customer.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • VHS does not assume responsibility for any damage to
-                      copper pipes during assembling and dismantling.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      6. Vehicle Movement:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • For the movement of two-wheelers or four-wheelers, the
-                      fuel tank should be completely emptied.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Customers are requested not to hand over any accessories
-                      such as helmets or jackets along with the two-wheeler.
-                      Claims regarding such accessories will not be entertained.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Please provide a copy of the RC book, insurance, and
-                      pollution certificate for two-wheeler movement.
-                    </div>
-
-                    <div className="poppins-black mt-1">
-                      Important Information:
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      1. Delays and Restricted Entry:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Due to No Entry Hours in specific cities, restricted
-                      movement, festival days, or peak days, there might be
-                      delays in the arrival of the vehicle.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • It is essential to be aware of the timings during which
-                      external vehicles are allowed inside the premises. Some
-                      societies have shifting restrictions in the morning,
-                      evening, or on Sundays. Please check with the society
-                      before the shifting date.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • If any permissions are required, the customer should
-                      take them in advance from the Resident Welfare
-                      Association.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      2. Goods Transfer via Ropes:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • If there is a need to transfer goods using ropes, the
-                      decision to proceed with this method lies solely with the
-                      customer subject to availability.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • VHS will not be responsible for any damage to the goods
-                      in such cases.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      3. Internal Damages and Packing:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • VHS does not cover for any internal damages.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Damages to goods not packed by VHS's crew are not
-                      covered by VHS.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Any other damage during the shifting process must be
-                      reported to VHS Customer Care within 24 hours of shifting
-                      completion. No cases or claims will be entertained if not
-                      reported within this timeframe.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      4. Disputes and Changes:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • VHS will not entertain disputes regarding aspects that
-                      are not included in the quote and were not officially
-                      communicated to the VHS Support team when changes were
-                      made. It is important to get the quote updated
-                      accordingly.
-                    </div>
-
-                    <div
-                      className="poppins-regular mt-2 mb-1"
-                      style={{ color: "black", fontWeight: "600" }}
-                    >
-                      5. Vehicle Type and Delivery Time:
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • The vehicle type sent to customers on the shifting date
-                      is dependent solely on the Partner.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • For intercity orders, the delivery time will vary
-                      depending on the route and the type of service (Full Truck
-                      Load or Part Truck Load). Customers are requested to refer
-                      to the Delivery Time with the booking representative at
-                      the time of booking.
-                    </div>
-                    <div
-                      className="poppins-extralight mb-1"
-                      style={{ color: "grey" }}
-                    >
-                      • Please note that there might be a deviation of up to 2
-                      days from the expected delivery date.
-                    </div>
-                  </Modal.Body>
-                </Modal>
               </div>
             </div>
           </div>
-        </>
-      )}
+        ) : null}
+      </div>
 
       <Modal show={show} centered onHide={handleClose}>
         <Modal.Header>
@@ -2688,14 +4090,18 @@ function Phome() {
                       className="fa-solid fa-minus"
                       style={{
                         fontSize: "16px",
-                        border: "1px solid black",
+                        border: "1px solid green",
                         padding: "5px",
+                        borderRadius: "5px",
                       }}
                     ></i>
                   </div>
 
                   <div className="col-md-2">
-                    <div className="poppins-black text-center mt-1">
+                    <div
+                      className="poppins-black text-center mt-1"
+                      style={{ color: "green" }}
+                    >
                       {item.qty}
                     </div>
                   </div>
@@ -2711,9 +4117,10 @@ function Phome() {
                       className="fa-solid fa-plus"
                       style={{
                         fontSize: "16px",
-                        border: "1px solid black",
+                        border: "1px solid green",
                         padding: "5px",
                         textAlign: "center",
+                        borderRadius: "5px",
                       }}
                     ></i>
                   </div>

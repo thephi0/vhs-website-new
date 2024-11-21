@@ -21,7 +21,6 @@ import Pheader from "./Pheader";
 import Pmheader from "./Pmheader";
 import Pmobileheader from "./Pmobileheader";
 import { useLocation, useNavigate } from "react-router-dom";
-import pcity from "../../src/assets1/pcity.jpg";
 import pcity1 from "../../src/assets1/pcity1.jpg";
 import pcity2 from "../../src/assets1/pcity2.jpg";
 // importing react-helmet
@@ -55,19 +54,8 @@ function Packersmovershome() {
   const [pickupLocationLng, setPickupLocationLng] = useState(null);
   const [dropLocationLat, setDropLocationLat] = useState(null);
   const [dropLocationLng, setDropLocationLng] = useState(null);
-  const [pmbannerdata, setpmbannerdata] = useState([]);
   const location = useLocation();
-  const [mainContact, setmainContact] = useState("");
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const { cityName } = location.state || {};
-  const [isLoading, setIsLoading] = useState(false);
-
-  const localutm = localStorage.getItem("utm_source");
-  console.log("localutm", localutm);
-  const localutmcampaign = localStorage.getItem("utm_campaign");
-  console.log("localutmcampaign", localutmcampaign);
-  const localutmcontent = localStorage.getItem("utm_content");
-  console.log("localutmcontent", localutmcontent);
 
   function deg2rad(deg) {
     return deg * (Math.PI / 180);
@@ -99,14 +87,27 @@ function Packersmovershome() {
 
   console.log("distanceInKm", distanceInKm);
 
-  const user = localStorage.getItem("user");
-  console.log("user", user);
+  const userString = localStorage.getItem("user");
+  const user = JSON.parse(userString);
+
+  console.log("user----", user?._id);
+
+  console.log("cityName===a", cityName);
 
   // SEO work for Mackers and Movers
   const { cityname } = useParams(); // Fetch city name from URL parameters
 
   const metaTags = {
-    Ahmedabad: {
+    Default: {
+      title: "Packers and Movers | Call +91-8453748478",
+      description:
+        "Packers and Movers  offer comprehensive relocation services for residential and commercial needs, specializing in packing, loading, transporting, and unpacking goods with utmost care and efficiency.",
+      canonical: "https://vijayhomeservices.com/packers-movers",
+      keywords: "Packers and Movers , Movers and Packers ",
+      image:
+        "https://vijayahomeservices.b-cdn.net/Webp%20Format%E2%80%A6ategory/Packers%20%26%20Movers/Within%20City.webp",
+    },
+    /*Ahmedabad: {
       title: "Packers and Movers in Ahmedabad | Call +91-8453748478",
       description:
         "Packers and Movers in Ahmedabad offer comprehensive relocation services for residential and commercial needs, specializing in packing, loading, transporting, and unpacking goods with utmost care and efficiency.",
@@ -297,9 +298,10 @@ function Packersmovershome() {
       image:
         "https://vijayahomeservices.b-cdn.net/Webp%20Format%E2%80%A6ategory/Packers%20%26%20Movers/Within%20City.webp",
     },
+    */
   };
 
-  const currentMetaTags = metaTags[cityName] || metaTags["Bangalore"]; // Fallback to Mumbai if city not found
+  const currentMetaTags = metaTags[cityName] || metaTags["Default"]; // Fallback to Mumbai if city not found
 
   const [Data, setData] = useState([]);
   const autocompleteRef = useRef(null);
@@ -409,7 +411,7 @@ function Packersmovershome() {
   const cityToPass = selectedCity || cityName;
 
   const addpackersenquiry = async (e) => {
-    // e.preventDefault();
+    e.preventDefault();
     if (!cityToPass) {
       alert("Please select a city");
       return;
@@ -445,7 +447,7 @@ function Packersmovershome() {
 
         if (response.status === 200) {
           const data = response.data.data;
-          // alert("Please select the list of items", data);
+          alert("Thank you we will contact you soon", data);
           // window.location.reload("");
           handleSubmit();
         }
@@ -457,24 +459,50 @@ function Packersmovershome() {
     }
   };
 
+  // const handleSubmit = () => {
+  //   if (!cityToPass) {
+  //     alert("Please select a city");
+  //     return;
+  //   }
+
+  //   if (!pickupLocation || !dropLocation || !mobilenumber || !shiftingdate) {
+  //     alert("Please enter all fields");
+  //   } else {
+  //     navigate("/packers-movers-services-details", {
+  //       state: {
+  //         pickupLocation,
+  //         dropLocation,
+  //         mobilenumber,
+  //         shiftingdate,
+  //         selectedCity: cityToPass,
+  //         pickupLocationLat,
+  //         pickupLocationLng,
+  //         dropLocationLat,
+  //         dropLocationLng,
+  //         cityData,
+  //       },
+  //     });
+  //   }
+  // };
+
   const handleSubmit = () => {
-    // if (!user) {
-    //   navigate("/pmlogin", {
-    //     state: {
-    //       pickupLocation,
-    //       dropLocation,
-    //       mobilenumber,
-    //       shiftingdate,
-    //       selectedCity: cityToPass,
-    //       pickupLocationLat,
-    //       pickupLocationLng,
-    //       dropLocationLat,
-    //       dropLocationLng,
-    //       cityData,
-    //     },
-    //   });
-    //   return;
-    // }
+    if (!user) {
+      navigate("/pmlogin", {
+        state: {
+          pickupLocation,
+          dropLocation,
+          mobilenumber,
+          shiftingdate,
+          selectedCity: cityToPass,
+          pickupLocationLat,
+          pickupLocationLng,
+          dropLocationLat,
+          dropLocationLng,
+          cityData,
+        },
+      });
+      return;
+    }
 
     if (!cityToPass) {
       alert("Please select a city");
@@ -501,141 +529,31 @@ function Packersmovershome() {
     }
   };
 
+  const bannerdata = [
+    
+    { id: 1, webbanner: pcity1 },
+    { id: 2, webbanner: pcity2 },
+  ];
+
   const [cityData, setCityData] = useState(null);
 
+  // Use useEffect to watch for changes in Data
   useEffect(() => {
     if (Array.isArray(Data) && Data.length > 0) {
-      setCityData(Data[0]);
+      // Ensure Data is a valid array
+      setCityData(Data[0]); // Set the initial city data
     }
-  }, [Data]);
+  }, [Data]); // Dependency on Data, so effect runs when Data changes
 
+  // Handler to update city data based on selected city type
   const handleCity = (cityType) => {
-    setCityData(cityType);
-  };
-
-  useEffect(() => {
-    getbanner();
-  }, []);
-
-  const getbanner = async () => {
-    try {
-      const res = await axios.get(
-        "https://api.vijayhomeservice.com/api/pmbanner/getallpmbanner"
-      );
-      setpmbannerdata(res.data.banner);
-    } catch (error) {
-      console.log("Error in getbanner:", error);
-    }
+    setCityData(cityType); // Update city data when a city is selected
   };
 
   console.log("cityData", cityData);
+  // Adding meta tags for SEO
 
-  const sendOTP = async () => {
-    // Validate mobile number
-    const isValidMobile = /^[6-9]\d{9}$/.test(mainContact);
-    if (!isValidMobile) {
-      alert("Please enter a valid 10-digit mobile number.");
-      return;
-    }
-
-    // if (!customername) {
-    //   alert("Please enter a valid name.");
-    //   return;
-    // }
-
-    // Extract UTM parameters
-    const queryParams = new URLSearchParams(window.location.search);
-    const utmSource = queryParams.get("utm_source") || "";
-    const utmMedium = queryParams.get("utm_medium") || "";
-    const utmCampaign = queryParams.get("utm_campaign") || "";
-    const utmContent = queryParams.get("utm_content") || "";
-    const gclid = queryParams.get("gclid") || "";
-    const referringDomain = document.referrer || "";
-
-    // Recognized social networks
-    const socialNetworks = [
-      "facebook.com",
-      "twitter.com",
-      "linkedin.com",
-      "instagram.com",
-    ];
-
-    // Determine the Tag value
-    let Tag = "";
-
-    // Logic for setting Tag
-    if (
-      (utmMedium === "social" &&
-        socialNetworks.some((network) => referringDomain.includes(network))) ||
-      (utmMedium === "social" && socialNetworks.includes(utmSource))
-    ) {
-      Tag = "Organic social";
-    } else if (
-      gclid ||
-      utmSource.toLowerCase().includes("adword") ||
-      utmSource.toLowerCase().includes("ppc") ||
-      utmSource.toLowerCase().includes("cpc") ||
-      (utmMedium.toLowerCase().includes("search") &&
-        utmSource.toLowerCase().includes("google")) ||
-      (utmSource === "google.com" && (utmMedium || utmCampaign))
-    ) {
-      Tag = "Paid search";
-    } else if (
-      (utmMedium.toLowerCase().includes("paid") ||
-        utmMedium.toLowerCase().includes("ppc") ||
-        utmMedium.toLowerCase().includes("cpc")) &&
-      socialNetworks.some(
-        (network) => utmSource === network || referringDomain.includes(network)
-      )
-    ) {
-      Tag = "Paid social";
-    } else if (
-      socialNetworks.some((network) => referringDomain.includes(network))
-    ) {
-      Tag = "Organic social";
-    } else {
-      console.warn("No Tag value identified for the current context.");
-    }
-
-    localStorage.setItem("Tag", Tag);
-
-    setIsLoading(true);
-
-    // Send OTP
-    try {
-      const response = await axios.post(
-        "https://api.vijayhomeservicebengaluru.in/api/sendotp/sendByCartBookweb",
-        {
-          mainContact: mainContact,
-          // customerName: customername,
-          reference1: localutm,
-          reference2: localutmcampaign,
-          reference3: localutmcontent,
-          Tag: Tag,
-        }
-      );
-
-      if (response.status === 200) {
-        // alert("Successful login");
-        localStorage.setItem("user", JSON.stringify(response.data.user));
-        setShowLoginModal(false); // Close the modal
-        handleSubmit();
-      }
-    } catch (error) {
-      if (error.response && error.response.data && error.response.data.error) {
-        alert(error.response.data.error);
-      } else if (error.message) {
-        alert(`Error: ${error.message}`);
-      } else {
-        alert("An unknown error occurred. Please try again.");
-      }
-      console.error("Error details:", error);
-    } finally {
-      // Stop the loader
-      setIsLoading(false);
-    }
-  };
-
+  // Return statements for SEO Packers and movers
   return (
     <div>
       <Helmet>
@@ -660,7 +578,7 @@ function Packersmovershome() {
             data-bs-interval="3000"
           >
             <div className="carousel-inner">
-              {pmbannerdata.map((data, index) => (
+              {bannerdata.map((data, index) => (
                 <div
                   key={index}
                   className={`carousel-item ${index === 0 ? "active" : ""}`}
@@ -702,635 +620,285 @@ function Packersmovershome() {
         </div>
 
         <div className="pm-mobile">
-          <div
-            id="carouselExample1"
-            className="carousel slide"
-            data-bs-ride="carousel"
-            data-bs-interval="3000"
-          >
-            <div className="carousel-inner">
-              {pmbannerdata.map((data, index) => (
-                <div
-                  key={index}
-                  className={`carousel-item ${index === 0 ? "active" : ""}`}
-                >
-                  <img
-                    src={data.mobilebanner}
-                    className="d-block w-100"
-                    alt={`Banner ${index + 1}`}
-                    style={{ height: "200px", width: "100%" }}
-                  />
-                </div>
-              ))}
-            </div>
-            <button
-              className="carousel-control-prev"
-              type="button"
-              data-bs-target="#carouselExample1"
-              data-bs-slide="prev"
-            >
-              <span
-                className="carousel-control-prev-icon"
-                aria-hidden="true"
-              ></span>
-              <span className="visually-hidden">Previous</span>
-            </button>
-            <button
-              className="carousel-control-next"
-              type="button"
-              data-bs-target="#carouselExample1"
-              data-bs-slide="next"
-            >
-              <span
-                className="carousel-control-next-icon"
-                aria-hidden="true"
-              ></span>
-              <span className="visually-hidden">Next</span>
-            </button>
-          </div>
+          <img
+            src={pmmobile}
+            alt="loading"
+            style={{ width: "100%", height: "150px" }}
+          />
         </div>
 
         <div className="container">
-          <div className="pm-web">
-            <div
-              className="d-flex mt-3 mb-3"
-              style={{ justifyContent: "center", gap: "10px" }}
-            >
-              {Data.slice(0, 2).map((data) => (
-                <>
-                  <div className="col-md-3">
-                    <div
-                      style={{
-                        border: "1px solid lightgrey",
-                        fontWeight: "bold",
-                        padding: "5px",
-                        borderRadius: "5px",
-                        backgroundColor:
-                          cityData?.servicename === data.servicename
-                            ? "blue"
-                            : "white",
-                        color:
-                          cityData?.servicename === data.servicename
-                            ? "white"
-                            : "black",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => handleCity(data)}
-                      className="poppins-regular text-center"
-                    >
-                      {data.servicename}
-                    </div>
+          <div
+            className="d-flex mt-3 mb-3"
+            style={{ justifyContent: "center", gap: "10px" }}
+          >
+            {Data.slice(0, 2).map((data) => (
+              <>
+                <div className="col-md-3">
+                  <div
+                    style={{
+                      border: "1px solid lightgrey",
+                      fontWeight: "bold",
+                      padding: "5px",
+                      borderRadius: "5px",
+                      backgroundColor:
+                        cityData?.servicename === data.servicename
+                          ? "blue"
+                          : "white",
+                      color:
+                        cityData?.servicename === data.servicename
+                          ? "white"
+                          : "black",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => handleCity(data)}
+                    className="poppins-regular text-center"
+                  >
+                    {data.servicename}
                   </div>
-                </>
-              ))}
-              <div className="col-md-3">
-                <div
-                  style={{
-                    border: "1px solid lightgrey",
-                    fontWeight: "bold",
-                    padding: "5px",
-                    borderRadius: "5px",
-                    backgroundColor:
-                      cityData?.servicename === "Hire Vehicle"
-                        ? "blue"
-                        : "white",
-                    color:
-                      cityData?.servicename === "Hire Vehicle"
-                        ? "white"
-                        : "black",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => handleCity({ servicename: "Hire Vehicle" })}
-                  className="poppins-regular text-center"
-                >
-                  Hire Vehicle
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="pm-mobile">
-            <div
-              className="d-flex  mb-3"
-              style={{ justifyContent: "center", gap: "10px" }}
-            >
-              {Data.slice(0, 2).map((data) => (
-                <>
-                  <div className="col-md-3">
-                    <div
-                      style={{
-                        border: "1px solid lightgrey",
-                        fontWeight: "bold",
-                        padding: "9px 7px",
-                        borderRadius: "5px",
-                        backgroundColor:
-                          cityData?.servicename === data.servicename
-                            ? "blue"
-                            : "white",
-                        color:
-                          cityData?.servicename === data.servicename
-                            ? "white"
-                            : "black",
-                        cursor: "pointer",
-                        fontSize: "12px",
-                      }}
-                      onClick={() => handleCity(data)}
-                      className="poppins-light text-center"
-                    >
-                      {data.servicename}
-                    </div>
-                  </div>
-                </>
-              ))}
-              <div className="col-md-3">
-                <div
-                  style={{
-                    border: "1px solid lightgrey",
-                    fontWeight: "bold",
-                    padding: "9px 7px",
-                    borderRadius: "5px",
-                    backgroundColor:
-                      cityData?.servicename === "Hire Vehicle"
-                        ? "blue"
-                        : "white",
-                    color:
-                      cityData?.servicename === "Hire Vehicle"
-                        ? "white"
-                        : "black",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => handleCity({ servicename: "Hire Vehicle" })}
-                  className="poppins-light text-center"
-                >
-                  Hire Vehicle
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* <div className="pm-web">
-            <div className="row mt-3">
+              </>
+            ))}
+            <div className="col-md-3">
               <div
-                onClick={handleResetModal}
-                className="col-md-2"
                 style={{
-                  backgroundColor: "aliceblue",
-                  padding: "20px",
-                  borderBottom: "1px solid grey",
-                  borderColor: "grey",
+                  border: "1px solid lightgrey",
+                  fontWeight: "bold",
+                  padding: "5px",
+                  borderRadius: "5px",
+                  backgroundColor:
+                    cityData?.servicename === "Hire Vehicle" ? "blue" : "white",
+                  color:
+                    cityData?.servicename === "Hire Vehicle"
+                      ? "white"
+                      : "black",
+                  cursor: "pointer",
                 }}
+                onClick={() => handleCity({ servicename: "Hire Vehicle" })}
+                className="poppins-regular text-center"
               >
-                <div className="poppins-black" style={{ color: "darkred" }}>
-                  <span>
-                    <i className="fa-solid fa-location-dot mx-2"></i>
-                  </span>
-                  {cityToPass ? cityToPass : "Select City"}
-                </div>
+                Hire Vehicle
               </div>
             </div>
+          </div>
+
+          <div className="row mt-3">
             <div
-              className="row"
+              onClick={handleResetModal}
+              className="col-md-2"
               style={{
                 backgroundColor: "aliceblue",
                 padding: "20px",
-                justifyContent: "center",
+                borderBottom: "1px solid grey",
+                borderColor: "grey",
               }}
             >
-              <div
-                className="col-md-3"
-                style={{ borderRight: "1px solid grey" }}
-              >
-                <div className="poppins-black">
-                  Pickup Location{" "}
-                  <span className="" style={{ color: "red" }}>
-                    {" "}
-                    *
-                  </span>
-                </div>
-
-                <Autocomplete
-                  onLoad={(autocomplete) => {
-                    autocompletePickupRef.current = autocomplete; // Use pickup ref
-                  }}
-                  onPlaceChanged={() => {
-                    const place = autocompletePickupRef.current.getPlace();
-                    if (!place || !place.geometry) {
-                      alert("Please select a valid location.");
-                      return;
-                    }
-
-                    const formattedAddress =
-                      place.formatted_address || "Unknown address";
-
-                    setPickupLocation(formattedAddress);
-                    setSelectAddress(formattedAddress);
-
-                    const lat = place.geometry.location.lat();
-                    const lng = place.geometry.location.lng();
-                    setPickupLocationLat(lat);
-                    setPickupLocationLng(lng);
-                  }}
-                >
-                  <input
-                    type="text"
-                    className="poppins-black col-md-12"
-                    placeholder="Sending from"
-                    value={pickupLocation}
-                    onChange={(e) => setPickupLocation(e.target.value)}
-                    style={{
-                      color: "grey",
-                      fontSize: "12px",
-                      border: "none",
-                      outline: "none",
-                      width: "100%",
-                      padding: "8px",
-                      marginTop: "5px",
-                      height: "40px",
-                    }}
-                  />
-                </Autocomplete>
-              </div>
-
-              <div
-                className="col-md-3"
-                style={{ borderRight: "1px solid grey" }}
-              >
-                <div className="poppins-black">
-                  Drop Location{" "}
-                  <span className="" style={{ color: "red" }}>
-                    {" "}
-                    *
-                  </span>
-                </div>
-                <Autocomplete
-                  onLoad={(autocomplete) => {
-                    autocompleteDropRef.current = autocomplete;
-                  }}
-                  onPlaceChanged={() => {
-                    const place = autocompleteDropRef.current.getPlace();
-                    if (!place || !place.geometry) {
-                      alert("Please select a valid location.");
-                      return;
-                    }
-
-                    const formattedAddress =
-                      place.formatted_address || "Unknown address";
-
-                    setDropLocation(formattedAddress);
-                    setSelectAddress1(formattedAddress);
-                    const lat = place.geometry.location.lat();
-                    const lng = place.geometry.location.lng();
-                    setDropLocationLat(lat);
-                    setDropLocationLng(lng);
-                  }}
-                >
-                  <input
-                    type="text"
-                    className="poppins-black col-md-12"
-                    placeholder="Sending to"
-                    value={dropLocation}
-                    onChange={(e) => setDropLocation(e.target.value)}
-                    style={{
-                      color: "grey",
-                      fontSize: "12px",
-                      border: "none",
-                      outline: "none",
-                      width: "100%",
-                      padding: "8px",
-                      marginTop: "5px",
-                      height: "40px",
-                    }}
-                  />
-                </Autocomplete>
-              </div>
-              <div
-                className="col-md-3"
-                style={{ borderRight: "1px solid grey" }}
-              >
-                <div className="poppins-black">
-                  Phone Number
-                  <span className="" style={{ color: "red" }}>
-                    {" "}
-                    *
-                  </span>
-                </div>
-                <input
-                  type="tel"
-                  className="poppins-black"
-                  placeholder="Enter Contact Details"
-                  value={mobilenumber}
-                  // onChange={(e) => {
-                  //   // Only allow digits (0-9) to be entered
-                  //   const value = e.target.value;
-                  //   if (/^\d*$/.test(value)) {
-                  //     setMobilenumber(value);
-                  //   }
-                  // }}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^\d{0,10}$/.test(value)) {
-                      setMobilenumber(value);
-                    }
-                  }}
-                  maxLength="10"
-                  style={{
-                    color: "grey",
-                    fontSize: "12px",
-                    border: "none",
-                    outline: "none",
-                    width: "100%",
-                    padding: "8px",
-                    marginTop: "5px",
-                    height: "40px",
-                  }}
-                />
-              </div>
-              <div className="col-md-3">
-                <div className="poppins-black">
-                  Shifting Date
-                  <span className="" style={{ color: "red" }}>
-                    {" "}
-                    *
-                  </span>
-                </div>
-                <input
-                  type="date"
-                  className="poppins-black col-md-12"
-                  placeholder="Please Select Date"
-                  value={shiftingdate}
-                  onChange={(e) => setshiftingdate(e.target.value)}
-                  onFocus={(e) => e.target.showPicker()}
-                  style={{
-                    color: "grey",
-                    fontSize: "12px",
-                    border: "none",
-                    outline: "none",
-                    width: "100%",
-                    padding: "8px",
-                    marginTop: "5px",
-                    marginBottom: "10px",
-                    height: "40px",
-                  }}
-                />
-              </div>
-              <div
-                className="col-md-3"
-                style={{ display: "flex", alignItems: "center" }}
-              >
-                <div
-                  // onClick={handleSubmit}
-                  // onClick={addpackersenquiry}
-                  onClick={() => {
-                    if (!user) {
-                      setShowLoginModal(true); // Open login modal if user is not logged in
-                    } else {
-                      addpackersenquiry(); // Call handleSubmit directly if user is logged in
-                    }
-                  }}
-                  className="poppins-black text-center"
-                  style={{
-                    color: "white",
-                    backgroundColor: "darkred",
-                    padding: "10px",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                    width: "100%",
-                  }}
-                >
-                  {loading ? "Loading..." : "Check Price"}
-                </div>
-              </div>
-            </div>
-          </div> */}
-
-          <div className="">
-            <div className="row mt-3">
-              <div
-                onClick={handleResetModal}
-                className="col-md-2 mb-3"
-                style={{
-                  backgroundColor: "aliceblue",
-                  padding: "20px",
-                }}
-              >
-                <div className="poppins-black" style={{ color: "darkred" }}>
-                  <span>
-                    <i
-                      className="fa-solid fa-location-dot mx-2"
-                      style={{ fontSize: "15px" }}
-                    ></i>
-                  </span>
-                  {cityToPass ? cityToPass : "Select City"}
-                </div>
-              </div>
-            </div>
-            <div
-              className="row"
-              style={{
-                backgroundColor: "aliceblue",
-                padding: "15px",
-                justifyContent: "center",
-                borderRadius: "5px",
-              }}
-            >
-              <div className="col-md-3">
-                <div className="poppins-black">
-                  Pickup Location{" "}
-                  <span className="" style={{ color: "red" }}>
-                    {" "}
-                    *
-                  </span>
-                </div>
-
-                <Autocomplete
-                  onLoad={(autocomplete) => {
-                    autocompletePickupRef.current = autocomplete; // Use pickup ref
-                  }}
-                  onPlaceChanged={() => {
-                    const place = autocompletePickupRef.current.getPlace();
-                    if (!place || !place.geometry) {
-                      alert("Please select a valid location.");
-                      return;
-                    }
-
-                    const formattedAddress =
-                      place.formatted_address || "Unknown address";
-
-                    setPickupLocation(formattedAddress);
-                    setSelectAddress(formattedAddress);
-
-                    const lat = place.geometry.location.lat();
-                    const lng = place.geometry.location.lng();
-                    setPickupLocationLat(lat);
-                    setPickupLocationLng(lng);
-                  }}
-                >
-                  <input
-                    type="text"
-                    className="poppins-black col-md-12"
-                    placeholder="Sending from"
-                    value={pickupLocation}
-                    onChange={(e) => setPickupLocation(e.target.value)}
-                    style={{
-                      color: "grey",
-                      fontSize: "12px",
-                      border: "none",
-                      outline: "none",
-                      width: "100%",
-                      padding: "8px",
-                      marginTop: "5px",
-                      height: "50px",
-                    }}
-                  />
-                </Autocomplete>
-              </div>
-
-              <div className="col-md-3">
-                <div className="poppins-black">
-                  Drop Location{" "}
-                  <span className="" style={{ color: "red" }}>
-                    {" "}
-                    *
-                  </span>
-                </div>
-                <Autocomplete
-                  onLoad={(autocomplete) => {
-                    autocompleteDropRef.current = autocomplete;
-                  }}
-                  onPlaceChanged={() => {
-                    const place = autocompleteDropRef.current.getPlace();
-                    if (!place || !place.geometry) {
-                      alert("Please select a valid location.");
-                      return;
-                    }
-
-                    const formattedAddress =
-                      place.formatted_address || "Unknown address";
-
-                    setDropLocation(formattedAddress);
-                    setSelectAddress1(formattedAddress);
-                    const lat = place.geometry.location.lat();
-                    const lng = place.geometry.location.lng();
-                    setDropLocationLat(lat);
-                    setDropLocationLng(lng);
-                  }}
-                >
-                  <input
-                    type="text"
-                    className="poppins-black col-md-12"
-                    placeholder="Sending to"
-                    value={dropLocation}
-                    onChange={(e) => setDropLocation(e.target.value)}
-                    style={{
-                      color: "grey",
-                      fontSize: "12px",
-                      border: "none",
-                      outline: "none",
-                      width: "100%",
-                      padding: "8px",
-                      marginTop: "5px",
-                      height: "50px",
-                    }}
-                  />
-                </Autocomplete>
-              </div>
-              <div className="col-md-3">
-                <div className="poppins-black">
-                  Phone Number
-                  <span className="" style={{ color: "red" }}>
-                    {" "}
-                    *
-                  </span>
-                </div>
-                <input
-                  type="tel"
-                  className="poppins-black"
-                  placeholder="Enter Contact Details"
-                  value={mobilenumber}
-                  // onChange={(e) => {
-                  //   // Only allow digits (0-9) to be entered
-                  //   const value = e.target.value;
-                  //   if (/^\d*$/.test(value)) {
-                  //     setMobilenumber(value);
-                  //   }
-                  // }}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (/^\d{0,10}$/.test(value)) {
-                      setMobilenumber(value);
-                    }
-                  }}
-                  maxLength="10"
-                  style={{
-                    color: "grey",
-                    fontSize: "12px",
-                    border: "none",
-                    outline: "none",
-                    width: "100%",
-                    padding: "8px",
-                    marginTop: "5px",
-                    height: "50px",
-                  }}
-                />
-              </div>
-              <div className="col-md-3">
-                <div className="poppins-black">
-                  Shifting Date
-                  <span className="" style={{ color: "red" }}>
-                    {" "}
-                    *
-                  </span>
-                </div>
-                <input
-                  type="date"
-                  className="poppins-black col-md-12"
-                  placeholder="Please Select Date"
-                  value={shiftingdate}
-                  onChange={(e) => setshiftingdate(e.target.value)}
-                  onFocus={(e) => e.target.showPicker()}
-                  style={{
-                    color: "grey",
-                    fontSize: "12px",
-                    border: "none",
-                    outline: "none",
-                    width: "100%",
-                    padding: "8px",
-                    marginTop: "5px",
-                    marginBottom: "10px",
-                    height: "50px",
-                  }}
-                />
-              </div>
-              <div
-                className="col-md-3 mt-2"
-                style={{ display: "flex", alignItems: "center" }}
-              >
-                <div
-                  // onClick={handleSubmit}
-                  // onClick={addpackersenquiry}
-                  onClick={() => {
-                    if (!user) {
-                      setShowLoginModal(true); // Open login modal if user is not logged in
-                    } else {
-                      addpackersenquiry(); // Call handleSubmit directly if user is logged in
-                    }
-                  }}
-                  className="poppins-black text-center btn  btn-danger"
-                  style={{
-                    color: "white",
-                    // backgroundColor: "darkred",
-                    padding: "10px",
-                    borderRadius: "5px",
-                    cursor: "pointer",
-                    width: "100%",
-                  }}
-                >
-                  {loading ? "Loading..." : "Check Price"}
-                </div>
+              <div className="poppins-black" style={{ color: "darkred" }}>
+                <span>
+                  <i className="fa-solid fa-location-dot mx-2"></i>
+                </span>
+                {cityToPass ? cityToPass : "Select City"}
               </div>
             </div>
           </div>
+          <div
+            className="row"
+            style={{
+              backgroundColor: "aliceblue",
+              padding: "20px",
+              justifyContent: "center",
+            }}
+          >
+            <div className="col-md-3" style={{ borderRight: "1px solid grey" }}>
+              <div className="poppins-black">
+                Pickup Location{" "}
+                <span className="" style={{ color: "red" }}>
+                  {" "}
+                  *
+                </span>
+              </div>
 
+              <Autocomplete
+                onLoad={(autocomplete) => {
+                  autocompletePickupRef.current = autocomplete; // Use pickup ref
+                }}
+                onPlaceChanged={() => {
+                  const place = autocompletePickupRef.current.getPlace();
+                  if (!place || !place.geometry) {
+                    alert("Please select a valid location.");
+                    return;
+                  }
+
+                  const formattedAddress =
+                    place.formatted_address || "Unknown address";
+
+                  setPickupLocation(formattedAddress);
+                  setSelectAddress(formattedAddress);
+
+                  const lat = place.geometry.location.lat();
+                  const lng = place.geometry.location.lng();
+                  setPickupLocationLat(lat);
+                  setPickupLocationLng(lng);
+                }}
+              >
+                <input
+                  type="text"
+                  className="poppins-black col-md-12"
+                  placeholder="Sending from"
+                  value={pickupLocation}
+                  onChange={(e) => setPickupLocation(e.target.value)}
+                  style={{
+                    color: "grey",
+                    fontSize: "12px",
+                    border: "none",
+                    outline: "none",
+                    width: "100%",
+                    padding: "8px",
+                    marginTop: "5px",
+                    height: "40px",
+                  }}
+                />
+              </Autocomplete>
+            </div>
+
+            <div className="col-md-3" style={{ borderRight: "1px solid grey" }}>
+              <div className="poppins-black">
+                Drop Location{" "}
+                <span className="" style={{ color: "red" }}>
+                  {" "}
+                  *
+                </span>
+              </div>
+              <Autocomplete
+                onLoad={(autocomplete) => {
+                  autocompleteDropRef.current = autocomplete;
+                }}
+                onPlaceChanged={() => {
+                  const place = autocompleteDropRef.current.getPlace();
+                  if (!place || !place.geometry) {
+                    alert("Please select a valid location.");
+                    return;
+                  }
+
+                  const formattedAddress =
+                    place.formatted_address || "Unknown address";
+
+                  setDropLocation(formattedAddress);
+                  setSelectAddress1(formattedAddress);
+                  const lat = place.geometry.location.lat();
+                  const lng = place.geometry.location.lng();
+                  setDropLocationLat(lat);
+                  setDropLocationLng(lng);
+                }}
+              >
+                <input
+                  type="text"
+                  className="poppins-black col-md-12"
+                  placeholder="Sending to"
+                  value={dropLocation}
+                  onChange={(e) => setDropLocation(e.target.value)}
+                  style={{
+                    color: "grey",
+                    fontSize: "12px",
+                    border: "none",
+                    outline: "none",
+                    width: "100%",
+                    padding: "8px",
+                    marginTop: "5px",
+                    height: "40px",
+                  }}
+                />
+              </Autocomplete>
+            </div>
+            <div className="col-md-3" style={{ borderRight: "1px solid grey" }}>
+              <div className="poppins-black">
+                Phone Number
+                <span className="" style={{ color: "red" }}>
+                  {" "}
+                  *
+                </span>
+              </div>
+              <input
+                type="tel"
+                className="poppins-black"
+                placeholder="Enter Contact Details"
+                value={mobilenumber}
+               /* onChange={(e) => {
+                  // Only allow digits (0-9) to be entered
+                  const value = e.target.value;
+                  if (/^\d*$/.test(value)) {
+                    setMobilenumber(value);
+                  }
+                }}
+                  */
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d{0,10}$/.test(value)) {
+                    setMobilenumber(value);
+                  }
+                }}
+                maxLength="10"
+                style={{
+                  color: "grey",
+                  fontSize: "12px",
+                  border: "none",
+                  outline: "none",
+                  width: "100%",
+                  padding: "8px",
+                  marginTop: "5px",
+                  height: "40px",
+                }}
+              />
+            </div>
+            <div className="col-md-3">
+              <div className="poppins-black">
+                Shifting Date
+                <span className="" style={{ color: "red" }}>
+                  {" "}
+                  *
+                </span>
+              </div>
+              <input
+                type="date"
+                className="poppins-black col-md-12"
+                placeholder="Please Select Date"
+                value={shiftingdate}
+                onChange={(e) => setshiftingdate(e.target.value)}
+                onFocus={(e) => e.target.showPicker()}
+                style={{
+                  color: "grey",
+                  fontSize: "12px",
+                  border: "none",
+                  outline: "none",
+                  width: "100%",
+                  padding: "8px",
+                  marginTop: "5px",
+                  marginBottom: "10px",
+                  height: "40px",
+                }}
+              />
+            </div>
+            <div
+              className="col-md-3"
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              <div
+                // onClick={handleSubmit}
+                onClick={addpackersenquiry}
+                className="poppins-black text-center"
+                style={{
+                  color: "white",
+                  backgroundColor: "darkred",
+                  padding: "10px",
+                  borderRadius: "5px",
+                  cursor: "pointer",
+                  width: "100%",
+                }}
+              >
+                {loading ? "Loading..." : "Check Price"}
+              </div>
+            </div>
+          </div>
           {/* First Module */}
           <div className="row mt-5 mb-3">
             <div className="poppins-semibold text-center">
@@ -2788,174 +2356,6 @@ function Packersmovershome() {
             </div>
           </div>
         </Modal>
-
-        {/* Login Modal */}
-
-        <Modal
-          show={showLoginModal}
-          centered
-          onHide={() => setShowLoginModal(false)} // Close modal
-          style={{ borderRadius: "10px" }}
-        >
-          <Modal.Body
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "30px",
-            }}
-          >
-            <div style={{ width: "100%", maxWidth: "400px" }}>
-              <div
-                className="poppins-light"
-                style={{
-                  marginBottom: "10px",
-                  fontSize: "16px",
-                  color: "black",
-                  fontWeight: "bold",
-                }}
-              >
-                Enter mobile number to continue
-              </div>
-              {/* <input
-                      type="text"
-                      value={customername}
-                      onChange={(e) => setcustomername(e.target.value)}
-                      placeholder="Enter Name"
-                      style={{
-                        border: "1px solid grey",
-                        height: "45px",
-                        width: "100%",
-                        marginTop: "15px",
-                      }}
-                    /> */}
-
-              <input
-                type="text"
-                value={mainContact}
-                onChange={(e) => setmainContact(e.target.value)}
-                placeholder="Enter Mobile Number"
-                style={{
-                  border: "1px solid grey",
-                  height: "45px",
-                  width: "100%",
-                }}
-              />
-              <div
-                onClick={sendOTP}
-                style={{
-                  backgroundColor: "#ff465e",
-                  color: "white",
-                  textAlign: "center",
-                  padding: "10px",
-                  borderRadius: "5px",
-                  cursor: "pointer",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                }}
-              >
-                {isLoading ? "Loading..." : "Continue"}
-              </div>
-              <div
-                style={{
-                  textAlign: "center",
-                  marginTop: "20px",
-                  fontSize: "14px",
-                  color: "#999",
-                }}
-              >
-                Why to choose{" "}
-                <span className="poppins-regular" style={{ color: "darkred" }}>
-                  Our Services?
-                </span>
-                <ul
-                  style={{
-                    listStyle: "none",
-                    padding: 0,
-                    marginTop: "10px",
-                  }}
-                >
-                  <li
-                    style={{
-                      marginBottom: "5px",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <i
-                      className="fa fa-check-circle"
-                      style={{ color: "green", marginRight: "5px" }}
-                    ></i>
-                    Lowest Price Guaranteed
-                  </li>
-                  <li
-                    style={{
-                      marginBottom: "5px",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <i
-                      className="fa fa-check-circle"
-                      style={{ color: "green", marginRight: "5px" }}
-                    ></i>
-                    Free Reschedule
-                  </li>
-                  <li
-                    style={{
-                      marginBottom: "5px",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <i
-                      className="fa fa-check-circle"
-                      style={{ color: "green", marginRight: "5px" }}
-                    ></i>
-                    5 Star Rated Partners
-                  </li>
-                  <li
-                    style={{
-                      marginBottom: "5px",
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <i
-                      className="fa fa-check-circle"
-                      style={{ color: "green", marginRight: "5px" }}
-                    ></i>
-                    Dedicated Customer Support
-                  </li>
-                </ul>
-              </div>
-              {/* <div
-                className="poppins-regular"
-                style={{
-                  textAlign: "center",
-                  fontSize: "12px",
-                  color: "#999",
-                  marginTop: "10px",
-                }}
-              >
-                By continuing, you agree to our{" "}
-                <a
-                  href="/terms-and-condition"
-                  className="poppins-regular"
-                  style={{ color: "blue" }}
-                >
-                  Terms & Conditions
-                </a>
-                and agree to updates on{" "}
-                <span className="poppins-regular" style={{ color: "green" }}>
-                  WhatsApp
-                </span>
-                .
-              </div> */}
-            </div>
-          </Modal.Body>
-        </Modal>
-
         <Footer />
       </div>
     </div>

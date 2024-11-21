@@ -24,6 +24,14 @@ import "swiper/css/navigation";
 import { FreeMode, Pagination, Autoplay, Navigation } from "swiper/modules";
 import Modal from "react-bootstrap/Modal";
 import { v4 as uuidv4 } from "uuid";
+import { Carousel } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import banner1 from '../../src/assets1/carouselbanner1.jpeg';
+import banner2 from   '../../src/assets1/carouselbanner2.jpeg';
+import banner3 from   '../../src/assets1/carouselbanner3.jpeg';
+import banner4 from '../../src/assets1/carouselbanner4.jpeg';
+import banner5 from '../../src/assets1/carouselbanner5.jpeg';
+import winterSaleVideo from '../../src/assets1/wintersale.webm';
 
 import {
   GoogleMap,
@@ -56,13 +64,6 @@ function Cartbook() {
   const [selectedAddress, setSelectedAddress] = useState({});
   const [showbutton, setshowbutton] = useState(false);
 
-  const localutm = localStorage.getItem("utm_source");
-  console.log("localutm", localutm);
-  const localutmcampaign = localStorage.getItem("utm_campaign");
-  console.log("localutmcampaign", localutmcampaign);
-  const localutmcontent = localStorage.getItem("utm_content");
-  console.log("localutmcontent", localutmcontent);
-
   const utm_source = localStorage.getItem("utm_source");
   const storedQuery = localStorage.getItem("fullQuery");
 
@@ -70,6 +71,13 @@ function Cartbook() {
     (acc, item) => acc + item.oferprice,
     0
   );
+  const banners = [
+    banner1,
+    banner2,
+    banner3,
+    banner4,
+    banner5
+  ];
 
   const [selectedPlaceAddress, setSelectedPlaceAddress] = useState("");
   const autocompleteRef = useRef(null);
@@ -820,90 +828,84 @@ function Cartbook() {
 
   const handleSubmit1 = async (e) => {
     e.preventDefault();
-    if (!selectedAddress || !selectedSlotText) {
-      alert("Please select address and time slots");
-    } else {
-      const paydata1 = {
-        customerData: [
-          {
-            _id: user?._id,
-            EnquiryId: user?.EnquiryId,
-            customerName: user?.customerName,
-            category: user?.category,
-            mainContact: user?.mainContact,
-            email: user?.email,
-            approach: user?.approach,
-          },
-        ],
-        // customerData: user?._id,
-        dividedDates: dividedDates.length ? dividedDates : [selectedDate],
-        customerName: customerName,
-        email: email,
-        userId: user?._id,
-        dividedamtCharges: dividedamtCharges,
-        dividedamtDates: dividedamtDates,
-        paymentMode: "Trying to booking",
-        cardNo: user?.cardNo,
-        category: MyCartItmes[0]?.service?.category,
-        contractType: "One Time",
-        service: MyCartItmes[0]?.service?.serviceName,
-        serviceID: MyCartItmes[0]?.service?._id,
-        serviceCharge: DiscountAmount,
-        dateofService: selectedDate,
-        selectedSlotText: selectedSlotText,
-        serviceFrequency: 1,
-        startDate: selectedDate,
-        expiryDate: selectedDate,
-        firstserviceDate: selectedDate,
-        date: moment().format("YYYY-MM-DD"),
-        time: moment().format("LT"),
-        type: "website",
-        desc: joinedPlanNames + joinedPlanaddonNames,
-        city: city,
-        discAmt: 0,
-        GrandTotal: DiscountAmount,
-        TotalAmt: Carttotal,
-        couponCode: voucherCodeValue,
-        totalSaved: SavedAmount,
-        markerCoordinate: selectedAddress?.markerCoordinate,
-        deliveryAddress: selectedAddress,
-        amount: DiscountAmount,
-        number: "8951592630",
-        MUID: "MUID" + Date.now(),
-        transactionId: "T" + Date.now(),
-        reference: utm_source ? utm_source : storedQuery,
-        reference1: localutm,
-        reference2: localutmcampaign,
-        reference3: localutmcontent,
-      };
 
-      const updatedRedirectUrl = `https://api.vijayhomeservicebengaluru.in/api/payment/handlepaystatus/${paydata1.transactionId}/${paydata1.userId}/${paydata1.serviceID}`;
+    const paydata1 = {
+      customerData: [
+        {
+          _id: user?._id,
+          EnquiryId: user?.EnquiryId,
+          customerName: user?.customerName,
+          category: user?.category,
+          mainContact: user?.mainContact,
+          email: user?.email,
+          approach: user?.approach,
+        },
+      ],
+      // customerData: user?._id,
+      dividedDates: dividedDates.length ? dividedDates : [selectedDate],
+      customerName: customerName,
+      email: email,
+      userId: user?._id,
+      dividedamtCharges: dividedamtCharges,
+      dividedamtDates: dividedamtDates,
+      paymentMode: "Trying to booking",
+      cardNo: user?.cardNo,
+      category: MyCartItmes[0]?.service?.category,
+      contractType: "One Time",
+      service: MyCartItmes[0]?.service?.serviceName,
+      serviceID: MyCartItmes[0]?.service?._id,
+      serviceCharge: DiscountAmount,
+      dateofService: selectedDate,
+      selectedSlotText: selectedSlotText,
+      serviceFrequency: 1,
+      startDate: selectedDate,
+      expiryDate: selectedDate,
+      firstserviceDate: selectedDate,
+      date: moment().format("YYYY-MM-DD"),
+      time: moment().format("LT"),
+      type: "website",
+      desc: joinedPlanNames + joinedPlanaddonNames,
+      city: city,
+      discAmt: 0,
+      GrandTotal: DiscountAmount,
+      TotalAmt: Carttotal,
+      couponCode: voucherCodeValue,
+      totalSaved: SavedAmount,
+      markerCoordinate: selectedAddress?.markerCoordinate,
+      deliveryAddress: selectedAddress,
+      amount: DiscountAmount,
+      number: "8951592630",
+      MUID: "MUID" + Date.now(),
+      transactionId: "T" + Date.now(),
+      reference: utm_source ? utm_source : storedQuery,
+    };
 
-      const paymentString = new URLSearchParams({
-        merchant_id: paymentData.merchant_id,
-        order_id: paymentData.order_id,
-        currency: paymentData.currency,
-        amount: DiscountAmount,
-        redirect_url: updatedRedirectUrl,
-        cancel_url: paymentData.cancel_url,
-        language: paymentData.language,
-      }).toString();
+    const updatedRedirectUrl = `https://api.vijayhomeservicebengaluru.in/api/payment/handlepaystatus/${paydata1.transactionId}/${paydata1.userId}/${paydata1.serviceID}`;
 
-      try {
-        const response = await axios.post(
-          "https://api.vijayhomeservicebengaluru.in/api/payment/ccavenueinitiate",
-          { payment_string: paymentString, updateddata: paydata1 }
-        );
+    const paymentString = new URLSearchParams({
+      merchant_id: paymentData.merchant_id,
+      order_id: paymentData.order_id,
+      currency: paymentData.currency,
+      amount: DiscountAmount,
+      redirect_url: updatedRedirectUrl,
+      cancel_url: paymentData.cancel_url,
+      language: paymentData.language,
+    }).toString();
 
-        if (response && response.data && response.data.url) {
-          window.location.href = response.data.url;
-        }
-      } catch (error) {
-        console.error(
-          "Error initiating payment:",
-          error.response || error.message || error
-        );
+    try {
+      const response = await axios.post(
+        "https://api.vijayhomeservicebengaluru.in/api/payment/ccavenueinitiate",
+        { payment_string: paymentString, updateddata: paydata1 }
+      );
+
+      if (response && response.data && response.data.url) {
+        window.location.href = response.data.url;
       }
+    } catch (error) {
+      console.error(
+        "Error initiating payment:",
+        error.response || error.message || error
+      );
     }
   };
 
@@ -1016,9 +1018,6 @@ function Cartbook() {
             totalSaved: SavedAmount,
             markerCoordinate: selectedAddress?.markerCoordinate,
             deliveryAddress: selectedAddress,
-            reference1: localutm,
-            reference2: localutmcampaign,
-            reference3: localutmcontent,
           },
         };
 
@@ -2312,7 +2311,7 @@ function Cartbook() {
                               : "pointer",
                         }}
                       >
-                        Book Now
+                        Pay Now
                       </div>
                     </div>
                   </div>
@@ -2716,71 +2715,122 @@ function Cartbook() {
                       src={require("../Assets/Images/a.mp4")}
                     ></video>
                   </div>
-                  <div className="d-flex align-items-center justify-content-center mt-2">
-                    <div
-                      className="col-md-5 text-center poppins-black"
-                      style={{ fontSize: "14px" }}
-                    >
-                      Category
-                    </div>
-                    <div className="col-md-1 mx-2">:</div>
-                    <div
-                      className="col-md-6 poppins-black"
-                      style={{ textAlign: "center" }}
-                    >
-                      {responseData?.data.category}
-                    </div>
-                  </div>
+                  <div className="text-center mb-4">
+  <h4 className="poppins-black" style={{ 
+    color: 'green', 
+    fontSize: '20px',
+    fontWeight: 'bold' 
+  }}>
+    Thank you for booking!
+  </h4>
+</div>
 
-                  <div className="d-flex align-items-center justify-content-center mt-2">
-                    <div
-                      className="col-md-5 text-center poppins-black"
-                      style={{ fontSize: "14px" }}
-                    >
-                      Service
-                    </div>
-                    <div className="col-md-1 mx-2">:</div>
-                    <div className="col-md-6 poppins-black">
-                      {responseData?.data.service}
-                    </div>
-                  </div>
+<style>
+{`
+  .details-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 12px;
+    width: 100%;
+  }
+  
+  .label-col {
+    width: 40%;
+    text-align: right;
+    font-size: 14px;
+    padding-right: 10px;
+  }
+  
+  .separator-col {
+    width: 5%;
+    text-align: center;
+  }
+  
+  .value-col {
+    width: 55%;
+    text-align: left;
+    padding-left: 10px;
+  }
+`}
+</style>
 
-                  <div className="d-flex align-items-center justify-content-center mt-2">
-                    <div className="col-md-5 text-center poppins-black">
-                      Description
-                    </div>
-                    <div className="col-md-1 mx-2">:</div>
-                    <div className="col-md-6 poppins-black">
-                      {responseData?.data.desc}
-                    </div>
-                  </div>
+{/* Details rows with consistent styling */}
+<div className="details-row">
+  <div className="label-col poppins-black">Category</div>
+  <div className="separator-col">:</div>
+  <div className="value-col poppins-black">{responseData?.data.category}</div>
+</div>
 
-                  <div className="d-flex align-items-center justify-content-center mt-2">
-                    <div
-                      className="col-md-5 text-center poppins-black"
-                      style={{ fontSize: "14px" }}
-                    >
-                      Date of Service
-                    </div>
-                    <div className="col-md-1 mx-2">:</div>
-                    <div className="col-md-6 poppins-black">
-                      {responseData?.data.dateofService}
-                    </div>
-                  </div>
+<div className="details-row">
+  <div className="label-col poppins-black">Service</div>
+  <div className="separator-col">:</div>
+  <div className="value-col poppins-black">{responseData?.data.service}</div>
+</div>
 
-                  <div className="d-flex align-items-center justify-content-center mt-2">
-                    <div
-                      className="col-md-5 text-center poppins-black"
-                      style={{ fontSize: "14px" }}
-                    >
-                      Service Charge
-                    </div>
-                    <div className="col-md-1 mx-2">:</div>
-                    <div className="col-md-6 poppins-black">
-                      {responseData?.data.serviceCharge}
-                    </div>
-                  </div>
+<div className="details-row">
+  <div className="label-col poppins-black">Description</div>
+  <div className="separator-col">:</div>
+  <div className="value-col poppins-black">{responseData?.data.desc}</div>
+</div>
 
+<div className="details-row">
+  <div className="label-col poppins-black">Date of Service</div>
+  <div className="separator-col">:</div>
+  <div className="value-col poppins-black">{responseData?.data.dateofService}</div>
+</div>
+
+<div className="details-row">
+  <div className="label-col poppins-black">Service Charge</div>
+  <div className="separator-col">:</div>
+  <div className="value-col poppins-black">{responseData?.data.serviceCharge}</div>
+</div>
+                    {/* Offer Alert Section */}
+                    <div style={{ maxWidth: '750px', margin: '0 auto',marginTop: '2rem' }}>
+  {/* Winter Sale Banner */}
+  <div style={{
+    backgroundColor: 'darkred',
+    color: 'white',
+    textAlign: 'center',
+    padding: '10px',
+    fontSize: '18px',
+    fontWeight: 'bold',
+    width: '100%',
+    borderTopLeftRadius: '5px',
+    borderTopRightRadius: '5px',
+    marginBottom: '0'
+  }}>
+    WINTER SALE IS NOW LIVE!
+  </div>
+
+  {/* Video Container */}
+  <div style={{
+    width: '100%',
+    margin: '0',
+    padding: '0',
+    background: 'transparent',
+    borderBottomLeftRadius: '5px',
+    borderBottomRightRadius: '5px',
+    overflow: 'hidden'
+  }}>
+    <video
+      autoPlay
+      loop
+      muted
+      playsInline
+      style={{
+        width: '100%',
+        height: 'auto',
+        objectFit: 'contain',
+        borderBottomLeftRadius: '5px',
+        borderBottomRightRadius: '5px'
+      }}
+    >
+      <source src={winterSaleVideo} type="video/webm" />
+      Your browser does not support the video tag.
+    </video>
+  </div>
+</div>
                   {responseData?.data.GrandTotal >= 1500 && (
                     <div>
                       <p
@@ -3043,6 +3093,33 @@ function Cartbook() {
         </div>
       </div>
       <Footer />
+      <style>
+        {`
+          .carousel-container {
+            max-width: 343px;
+            margin: 0 auto;
+            overflow: hidden;
+          }
+
+          .carousel-item img {
+            width: 100%;
+            height: auto;
+            object-fit: contain !important;
+            max-height: 250px;
+          }
+
+          @media (max-width: 768px) {
+            .carousel-container {
+              max-width: 100%;
+            }
+            
+            .carousel-item img {
+              height: 200px;
+              object-fit: contain !important;
+            }
+          }
+        `}
+      </style>
     </>
   );
 }

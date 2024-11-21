@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation } from "react-router-dom";
 import axios from "axios";
 import Footer from "./Footer";
 import NavbarCompo from "./navbar";
@@ -9,6 +9,9 @@ const Category = () => {
   const { data } = useParams();
   const [subcategoryData, setSubcategoryData] = useState([]);
   const [city, setCity] = useState("");
+  const [serviceContent, setServiceContent] = useState(null);
+  const location = useLocation();
+  const locationSlug = location.pathname.split('/')[2]; // Get category from URL
 
   const capitalizeFirstLetter = (str) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -44,6 +47,10 @@ const Category = () => {
     }
   }, [data]);
 
+  useEffect(() => {
+    setDefaultContent();
+  }, [locationSlug]);
+
   const getSubcategory = async (category) => {
     try {
       let res = await axios.post(
@@ -59,6 +66,35 @@ const Category = () => {
     }
   };
 
+  const setDefaultContent = () => {
+    setServiceContent({
+      title: `Vijay Home Services - Professional ${data} Services`,
+      description: [
+        `Vijay Home Services offers comprehensive ${data} solutions designed to enhance your living space. Our professional team delivers exceptional service quality with attention to detail.`
+      ],
+      contentkey1: `Benefits of Our ${data} Services`,
+      contentlist1: [
+        `Professional Expertise: Trained and skilled technicians`,
+        `Quality Assurance: High standards and satisfaction guarantee`,
+        `Affordable Solutions: Competitive pricing with great value`,
+        `Timely Service: Punctual and efficient execution`,
+        `Customer Support: Responsive and helpful assistance`
+      ],
+      contentkey2: `Why Choose Our ${data} Services?`,
+      contentlist2: [
+        `We pride ourselves on delivering reliable, efficient, and professional ${data} services that meet your specific needs.`
+      ],
+      contentkey3: `Our Service Process`,
+      contentlist3: [
+        `1. Schedule Service: Easy booking process`,
+        `2. Professional Assessment: Detailed evaluation`,
+        `3. Expert Execution: Skilled service delivery`,
+        `4. Quality Check: Thorough inspection`,
+        `5. Support: Ongoing assistance`
+      ]
+    });
+  };
+
   return (
     <div>
       <NavbarCompo />
@@ -69,16 +105,18 @@ const Category = () => {
           {subcategoryData.map((ele, index) => (
             <div className="col-md-3 mt-3" key={index}>
               <Link
-                to={{
-                  pathname: `/service/${ele.subcategory
-                    .toLowerCase()
-                    .replace(/ /g, "-")}-in-${city
-                    .toLowerCase()
-                    .replace(/ /g, "-")}`,
-                  state: { data: ele },
-                }}
-                className="text-decoration-none text-black"
-              >
+  to={{
+    pathname: `/service/${ele.subcategory
+      .toLowerCase()
+      .replace(/ /g, "-")
+      .replace(/-in/g, "")}-in-${city
+      .toLowerCase()
+      .replace(/ /g, "-")
+      .replace(/-in/g, "")}`,
+    state: { data: ele },
+  }}
+  className="text-decoration-none text-black"
+>
                 <div
                   style={{
                     display: "flex",
@@ -103,6 +141,31 @@ const Category = () => {
               </Link>
             </div>
           ))}
+        </div>
+        <div className="content-section mt-5">
+          <h2 className="poppins-semibold">{serviceContent?.title}</h2>
+          {serviceContent?.description.map((desc, index) => (
+            <p key={index} className="poppins-regular mt-3">{desc}</p>
+          ))}
+
+          <h3 className="poppins-semibold mt-4">{serviceContent?.contentkey1}</h3>
+          <ul className="poppins-regular">
+            {serviceContent?.contentlist1.map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+
+          <h3 className="poppins-semibold mt-4">{serviceContent?.contentkey2}</h3>
+          {serviceContent?.contentlist2.map((text, index) => (
+            <p key={index} className="poppins-regular">{text}</p>
+          ))}
+
+          <h3 className="poppins-semibold mt-4">{serviceContent?.contentkey3}</h3>
+          <ul className="poppins-regular">
+            {serviceContent?.contentlist3.map((step, index) => (
+              <li key={index}>{step}</li>
+            ))}
+          </ul>
         </div>
       </div>
       <Footer />

@@ -36,11 +36,6 @@ import ReactHlsPlayer from "react-hls-player";
 import subcall from "../../src/assests/subcall.gif";
 import subweb from "../../src/assests/subweb.gif";
 import moment from "moment";
-import { Helmet } from "react-helmet-async";
-import contentMapping from '../content/contentMapping';
-import '../content/contentMapping.css';
-import seoMapping from '../content/seoMapping'
-
 
 function capitalizeFirstLetter1(string) {
   if (typeof string !== "string" || string.length === 0) {
@@ -57,25 +52,18 @@ const capitalizeWords = (str) => {
     .join(" ");
 };
 
-function Subcategory( ) {
-  
-  
+function Subcategory() {
   const { subcategory } = useParams();
   const location = useLocation();
- 
-  const currentURL = window.location.href;
 
-  console.log("subcategory", subcategory);
- 
+  const currentURL = window.location.href;
 
   const queryString = window.location.search;
 
+  const serviceRefs = useRef({});
+
   localStorage.setItem("currentURL", currentURL);
   const currentURLdata = localStorage.getItem("currentURL");
-
-  console.log("Current URL stored in localStorage:", currentURLdata);
-
-  console.log("currentURL", currentURL);
 
   const getQueryParams = (queryString, param) => {
     const params = new URLSearchParams(queryString);
@@ -100,11 +88,6 @@ function Subcategory( ) {
     }
   }, [location]);
 
-   
-  //const { subcategory } = useParams(); // Fetch dynamic params (e.g., "cleaning-in-bangalore")
-  const [serviceData, setServiceData] = useState(null);
-  const [city, setCity] = useState(null);
-  
   const storedQuery = localStorage.getItem("fullQuery");
 
   const getQueryParams1 = (queryString, param) => {
@@ -150,9 +133,9 @@ function Subcategory( ) {
   const handleenquiryClose = () => setenquiryshow(false);
   const handleenquiryShow = () => setenquiryshow(true);
   const dispatch = useDispatch();
-  
- 
+  const [serviceData, setserviceData] = useState([]);
   const [selectedServiceName, setSelectedServiceName] = useState("");
+  const [serviceamount, setserviceamount] = useState(null);
 
   const [isLoading, setIsLoading] = useState(true);
   const [Item, setItem] = useState([]);
@@ -168,26 +151,24 @@ function Subcategory( ) {
   const [Quantity, setQuantity] = useState(1);
   const [offerBannerdata, setofferBannerdata] = useState([]);
   const [postsubdata, setpostsubdata] = useState([]);
-
   const [vshow, setvShow] = useState(false);
   const [modalbanner, setmodalbanner] = useState([]);
-
   const [vhspromise, setvhspromise] = useState([]);
   const [whychooseus, setwhychooseus] = useState([]);
   const [allcamparison, setallcamparison] = useState([]);
   const [faq, setfaq] = useState([]);
   const [review, setreview] = useState([]);
   const navigate = useNavigate();
-  
-
-  //SEO
- 
- 
-
+  const [city, setCity] = useState("");
   const [Bannermidledata, setBannermidledata] = useState([]);
   const [name, setname] = useState("");
   const [mobilenumber, setmobilenumber] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [customername, setcustomername] = useState("");
+  const [mainContact, setmainContact] = useState("");
+  const [loginloading, setloginloading] = useState(false);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -211,8 +192,6 @@ function Subcategory( ) {
       navigate("/login", { state: { city: City } });
     }
   };
-
-  console.log("subcategoryData", subcategoryData);
 
   const transformedFaqData = {
     rows: faq.map((f) => ({
@@ -297,7 +276,8 @@ function Subcategory( ) {
         "Appliance Service",
         "Facility Management",
       ];
-  const categoryNamecheck = services.find((service) =>
+
+      const categoryNamecheck = services.find((service) =>
         service.toLowerCase().includes(category1.toLowerCase())
       );
 
@@ -347,13 +327,11 @@ function Subcategory( ) {
     0
   );
 
-  let SelectedService = serviceData && Array.isArray(serviceData)
-  ? serviceData
-      .map((service) =>
-        service.morepriceData?.filter((plan) => plan._id === SelectService) || []
-      )
-      .flatMap((cart) => cart) || []
-  : []; // Return an empty array if serviceData is null or not an array
+  let SelectedService = serviceData
+    .map((serivice) =>
+      serivice.morepriceData.filter((paln) => paln._id === SelectService)
+    )
+    .flatMap((cart) => cart);
 
   const handleAdd = (e, data, index) => {
     e.preventDefault();
@@ -627,8 +605,6 @@ function Subcategory( ) {
     });
   };
 
-  console.log("sub", sub);
-
   useEffect(() => {
     getbannerimg();
   }, [offerBannerdata]);
@@ -662,33 +638,99 @@ function Subcategory( ) {
   const scrollToService = (index) => {
     const section = document.getElementById(`service-${index}`);
     if (section) {
-      section.scrollIntoView({ behavior: "smooth" });
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
   const generatePathname = (subcategory, city) => {
-    // Clean and format the subcategory and city
-    const cleanSubcategory = subcategory.toLowerCase().trim().replace(/\s+/g, '-');
-    const cleanCity = city.toLowerCase().trim().replace(/\s+/g, '-');
-    
-    // Generate clean URL without multiple "in" segments
-    return `/services/${cleanSubcategory}-in-${cleanCity}`;
-  };
-  
-  const generatePathname1 = (serviceName, city) => {
-    // Clean and format the service name and city
-    const cleanServiceName = serviceName.toLowerCase().trim().replace(/\s+/g, '-');
-    const cleanCity = city?.toLowerCase().trim().replace(/\s+/g, '-') || '';
-    
-   
+    return `/services/${subcategory.toLowerCase().replace(/ /g, "-")}-in-${city
+      .toLowerCase()
+      .replace(/ /g, "-")}`;
   };
 
- /* const addsurvey = async (e) => {
+  const generatePathname1 = (serviceName, capitalizedCity) => {
+    let cleanedSubcategory = serviceName.trim();
+    if (cleanedSubcategory.startsWith("-")) {
+      cleanedSubcategory = cleanedSubcategory.substring(1);
+    }
+
+    // Generate the URL
+    return `/viewdetails/${cleanedSubcategory
+      .toLowerCase()
+      .replace(/ /g, "-")}-in-${capitalizedCity
+      ?.toLowerCase()
+      .replace(/ /g, "-")}`;
+  };
+
+  // const addsurvey = async (e, serviceName) => {
+  //   e.preventDefault();
+  //   console.log("selectedServiceName====", serviceName);
+  //   if (!name || !mobilenumber) {
+  //     alert("Please fill in all fields");
+  //     return;
+  //   }
+  //   const phoneRegex = /^[6-9]\d{9}$/;
+  //   if (!phoneRegex.test(mobilenumber)) {
+  //     alert("Please enter a valid 10-digit mobile number");
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+  //     const config = {
+  //       url: "https://api.vijayhomeservicebengaluru.in/api/addnewenquiry",
+  //       method: "post",
+  //       headers: { "Content-Type": "application/json" },
+  //       data: {
+  //         mobile: mobilenumber,
+  //         name: name,
+  //         category: "Painting",
+  //         city: capitalizedCity,
+  //         date: moment().format("MM-DD-YYYY"),
+  //         Time: moment().format("h:mm:ss a"),
+  //         reference1: "website",
+  //         reference2: localutm,
+  //         // reference3: localutmcampaign,
+  //         reference5: localutmcampaign,
+  //         reference4: localutmcontent,
+  //         formdetails: serviceName,
+  //         Tag : ""
+  //       },
+  //     };
+
+  //     const response = await axios(config);
+
+  //     if (response.status === 200) {
+  //       setenquiryshow(false);
+  //       addenquiryfollowup1(response.data.data);
+  //       // alert("Enquiry added successfully");
+  //     } else {
+  //       alert(`Unexpected response: ${response.status}`);
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     if (error.response) {
+  //       alert(
+  //         `Error: ${error.response.data.message || "Failed to add enquiry"}`
+  //       );
+  //     } else if (error.request) {
+  //       alert("No response received. Please check your network connection.");
+  //     } else {
+  //       alert("An error occurred: " + error.message);
+  //     }
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const addsurvey = async (e, serviceName, serviceamount) => {
     e.preventDefault();
+
     if (!name || !mobilenumber) {
       alert("Please fill in all fields");
       return;
     }
+
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(mobilenumber)) {
       alert("Please enter a valid 10-digit mobile number");
@@ -697,6 +739,71 @@ function Subcategory( ) {
 
     try {
       setLoading(true);
+
+      // Extract UTM parameters from the current URL
+      const queryParams = new URLSearchParams(window.location.search);
+      const utmSource = queryParams.get("utm_source") || "";
+      const utmMedium = queryParams.get("utm_medium") || "";
+      const utmCampaign = queryParams.get("utm_campaign") || "";
+      const utmContent = queryParams.get("utm_content") || "";
+      const gclid = queryParams.get("gclid") || "";
+      const referringDomain = document.referrer || "";
+
+      // Recognized social networks
+      const socialNetworks = [
+        "facebook.com",
+        "twitter.com",
+        "linkedin.com",
+        "instagram.com",
+      ];
+
+      // Determine the Tag value
+      let Tag = "";
+
+      // Organic social
+      if (
+        (utmMedium === "social" &&
+          socialNetworks.some((network) =>
+            referringDomain.includes(network)
+          )) ||
+        (utmMedium === "social" && socialNetworks.includes(utmSource))
+      ) {
+        Tag = "Organic social";
+      }
+      // Paid search
+      else if (
+        gclid || // Google Click ID is present
+        utmSource.toLowerCase().includes("adword") ||
+        utmSource.toLowerCase().includes("ppc") ||
+        utmSource.toLowerCase().includes("cpc") ||
+        (utmMedium.toLowerCase().includes("search") &&
+          utmSource.toLowerCase().includes("google")) ||
+        (utmSource === "google.com" && (utmMedium || utmCampaign))
+      ) {
+        Tag = "Paid search";
+      }
+      // Paid social
+      else if (
+        (utmMedium.toLowerCase().includes("paid") ||
+          utmMedium.toLowerCase().includes("ppc") ||
+          utmMedium.toLowerCase().includes("cpc")) &&
+        socialNetworks.some(
+          (network) =>
+            utmSource === network || referringDomain.includes(network)
+        )
+      ) {
+        Tag = "Paid social";
+      }
+      // Default Organic social for other social traffic
+      else if (
+        socialNetworks.some((network) => referringDomain.includes(network))
+      ) {
+        Tag = "Organic social";
+      }
+
+      localStorage.setItem("Tag", Tag);
+
+      // API request
       const config = {
         url: "https://api.vijayhomeservicebengaluru.in/api/addnewenquiry",
         method: "post",
@@ -709,6 +816,12 @@ function Subcategory( ) {
           date: moment().format("MM-DD-YYYY"),
           Time: moment().format("h:mm:ss a"),
           reference1: "website",
+          reference2: localutm,
+          reference5: localutmcampaign,
+          reference4: localutmcontent,
+          intrestedfor: serviceName,
+          Tag: Tag, // Pass the computed Tag here
+          amount: serviceamount,
         },
       };
 
@@ -717,7 +830,7 @@ function Subcategory( ) {
       if (response.status === 200) {
         setenquiryshow(false);
         addenquiryfollowup1(response.data.data);
-        // alert("Enquiry added successfully");
+        window.location.assign("/thankyou");
       } else {
         alert(`Unexpected response: ${response.status}`);
       }
@@ -736,26 +849,73 @@ function Subcategory( ) {
       setLoading(false);
     }
   };
-*/
-const addsurvey = async (e, serviceName) => {
-  e.preventDefault();
-  console.log("selectedServiceName====", serviceName);
 
-  if (!name || !mobilenumber) {
-    alert("Please fill in all fields");
-    return;
-  }
+  const addenquiryfollowup1 = async (edata) => {
+    try {
+      const config = {
+        url: `/addenquiryfollowup`,
+        method: "post",
+        baseURL: "https://api.vijayhomeservicebengaluru.in/api",
 
-  const phoneRegex = /^[6-9]\d{9}$/;
-  if (!phoneRegex.test(mobilenumber)) {
-    alert("Please enter a valid 10-digit mobile number");
-    return;
-  }
+        headers: { "content-type": "application/json" },
+        data: {
+          EnquiryId: edata?.EnquiryId,
+          folldate: moment().format("llll"),
+          response: "New",
+          category: "Painting",
+          city: capitalizedCity,
+          nxtfoll: moment().format("YYYY-MM-DD"),
+          type: "website",
+        },
+      };
+      await axios(config).then(function (response) {
+        if (response.status === 200) {
+          alert("Enquiry Followup Added Successfully");
+        }
+      });
+    } catch (error) {
+      console.error(error);
 
-  try {
-    setLoading(true);
+      alert("Failed to booking.Please try again later...");
+    }
+  };
 
-    // Extract UTM parameters from the current URL
+  const calculatedPrices = useMemo(() => {
+    return subcategoryData.map((data) => {
+      const filteredPrices = data?.morepriceData?.filter(
+        (ele) => ele.pricecity === capitalizedCity
+      );
+
+      const lowestPrice =
+        filteredPrices?.length > 0
+          ? Math.min(
+              ...filteredPrices.map((ele) => parseFloat(ele.pofferprice))
+            )
+          : null;
+
+      const highPrice =
+        filteredPrices?.length > 0
+          ? Math.max(...filteredPrices.map((ele) => parseFloat(ele.pPrice)))
+          : null;
+
+      return { ...data, lowestPrice, highPrice };
+    });
+  }, [subcategoryData, capitalizedCity]);
+
+  const sendOTP = async () => {
+    // Validate mobile number
+    const isValidMobile = /^[6-9]\d{9}$/.test(mainContact);
+    if (!isValidMobile) {
+      alert("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
+    // if (!customername) {
+    //   alert("Please enter a valid name.");
+    //   return;
+    // }
+
+    // Extract UTM parameters
     const queryParams = new URLSearchParams(window.location.search);
     const utmSource = queryParams.get("utm_source") || "";
     const utmMedium = queryParams.get("utm_medium") || "";
@@ -775,19 +935,15 @@ const addsurvey = async (e, serviceName) => {
     // Determine the Tag value
     let Tag = "";
 
-    // Organic social
+    // Logic for setting Tag
     if (
       (utmMedium === "social" &&
-        socialNetworks.some((network) =>
-          referringDomain.includes(network)
-        )) ||
+        socialNetworks.some((network) => referringDomain.includes(network))) ||
       (utmMedium === "social" && socialNetworks.includes(utmSource))
     ) {
       Tag = "Organic social";
-    }
-    // Paid search
-    else if (
-      gclid || // Google Click ID is present
+    } else if (
+      gclid ||
       utmSource.toLowerCase().includes("adword") ||
       utmSource.toLowerCase().includes("ppc") ||
       utmSource.toLowerCase().includes("cpc") ||
@@ -796,224 +952,58 @@ const addsurvey = async (e, serviceName) => {
       (utmSource === "google.com" && (utmMedium || utmCampaign))
     ) {
       Tag = "Paid search";
-    }
-    // Paid social
-    else if (
+    } else if (
       (utmMedium.toLowerCase().includes("paid") ||
         utmMedium.toLowerCase().includes("ppc") ||
         utmMedium.toLowerCase().includes("cpc")) &&
       socialNetworks.some(
-        (network) =>
-          utmSource === network || referringDomain.includes(network)
+        (network) => utmSource === network || referringDomain.includes(network)
       )
     ) {
       Tag = "Paid social";
-    }
-    // Default Organic social for other social traffic
-    else if (
+    } else if (
       socialNetworks.some((network) => referringDomain.includes(network))
     ) {
       Tag = "Organic social";
+    } else {
+      console.warn("No Tag value identified for the current context.");
     }
 
-    console.log("Final Tag value:", Tag);
     localStorage.setItem("Tag", Tag);
 
-    // API request
-    const config = {
-      url: "https://api.vijayhomeservicebengaluru.in/api/addnewenquiry",
-      method: "post",
-      headers: { "Content-Type": "application/json" },
-      data: {
-        mobile: mobilenumber,
-        name: name,
-        category: "Painting",
-        city: capitalizedCity,
-        date: moment().format("MM-DD-YYYY"),
-        Time: moment().format("h:mm:ss a"),
-        reference1: "website",
-        reference2: localutm,
-        reference5: localutmcampaign,
-        reference4: localutmcontent,
-        intrestedfor: serviceName,
-        Tag: Tag, // Pass the computed Tag here
-      },
-    };
-
-    const response = await axios(config);
-
-    if (response.status === 200) {
-      setenquiryshow(false);
-      addenquiryfollowup1(response.data.data);
-    } else {
-      alert(`Unexpected response: ${response.status}`);
-    }
-  } catch (error) {
-    console.error(error);
-    if (error.response) {
-      alert(
-        `Error: ${error.response.data.message || "Failed to add enquiry"}`
-      );
-    } else if (error.request) {
-      alert("No response received. Please check your network connection.");
-    } else {
-      alert("An error occurred: " + error.message);
-    }
-  } finally {
-    setLoading(false);
-  }
-};
-
-  const addenquiryfollowup1 = async (edata) => {
+    // Send OTP
     try {
-      const config = {
-        url: `/addenquiryfollowup`,
-        method: "post",
-        baseURL: "https://api.vijayhomeservicebengaluru.in/api",
-
-        headers: { "content-type": "application/json" },
-        data: {
-          EnquiryId: edata?.EnquiryId,
-          folldate: moment().format("llll"),
-          response: "new",
-          category: "Painting",
-          city: capitalizedCity,
-          nxtfoll: moment().format("YYYY-MM-DD"),
-          type: "website",
-        },
-      };
-      await axios(config).then(function (response) {
-        if (response.status === 200) {
-          alert("Enquiry Followup Added Successfully");
+      const response = await axios.post(
+        "https://api.vijayhomeservicebengaluru.in/api/sendotp/sendByCartBookweb",
+        {
+          mainContact: mainContact,
+          // customerName: customername,
+          reference1: localutm,
+          reference2: localutmcampaign,
+          reference3: localutmcontent,
+          Tag: Tag,
         }
-      });
-    } catch (error) {
-      console.error(error);
+      );
 
-      alert("Failed to booking.Please try again later...");
+      if (response.status === 200) {
+        alert("Successful login");
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        setShowLoginModal(false); // Close the modal
+      }
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.error) {
+        alert(error.response.data.error);
+      } else if (error.message) {
+        alert(`Error: ${error.message}`);
+      } else {
+        alert("An unknown error occurred. Please try again.");
+      }
+      console.error("Error details:", error);
     }
   };
 
-  const {city1} = useState("");
-  
- const {cityName} = useState('');
-// Format subcategory and city names
-const formattedsubcategory = subcategory ? subcategory.toLowerCase().replace(/ /g, "-") : ""; // Use a fallback
-const formattedCityName = cityName ? cityName.toLowerCase().replace(/ /g, "-") : ""; // Use a fallback
-
-
-
- console.log("Formatted Subcategory:", formattedsubcategory);
-console.log("Available Keys in seoMapping:", Object.keys(seoMapping));
-
-const staticcityName = "Bangalore"; // Replace with dynamic data as needed
-const subcategoryKey = 'bathroom-cleaning-in-bangalore'; // Example subcategory key
-
-// Get meta data based on the subcategory, or default if not found
-const meta =
-seoMapping[formattedsubcategory]?.meta || seoMapping[formattedsubcategory] || {
-  title: "Expert Home Services Up to 60% OFF - Vijay Home Services",
-  description: "Experience top-notch home services cleaning, painting, pest control,etc. Lowest Price in Market | ISO Certified Company. Trained Professionals | No Sub Contract. 100% Satisfaction or FREE Rework*.",
-  keywords: "home services, cleaning services, pest control, painting services, home repairs, maintenance services, eco-friendly cleaning, affordable home care, reliable home solutions, expert home services, one-stop home services, Vijay Home Services, professional home care, quality home services.",
-};
-
- 
-
- // Replace placeholders with dynamic city name
- const metaTitle = meta.title.replace(/{cityName}/g, cityName);
- const metaDescription = meta.description.replace(/{cityName}/g, cityName);
- const metaKeywords = meta.keywords.replace(/{cityName}/g, cityName);
-
-// Generate the URL
-const url = `/services/${formattedsubcategory}`;
-
-const [serviceContent, setServiceContent] = useState(null);
-const cleanedSubcategory = subcategory.trim();  
-console.log("lllllllllllllllllllllllllllllllll",cleanedSubcategory);
-const [serviceSlug, locationSlug] = cleanedSubcategory.split("-in-");
-console.log('services:', serviceSlug);
-console.log('services:', locationSlug); 
-  useEffect(() => {
-    let matchedContent = null;
-    Object.values(contentMapping).forEach((category) => {
-      const service = category.find(
-        (item) => item.serviceSlug === serviceSlug.toLowerCase()
-      );
-      if (service) {
-        const location = service.locations.find(
-          (loc) => loc.locationSlug === locationSlug.toLowerCase()
-        );
-        if (location) {
-          matchedContent = location;
-        }
-      }
-    });
-
-    if (matchedContent) {
-      setServiceContent(matchedContent);
-      setCity(locationSlug);
-    } else {
-      console.error("No matching content found.");
-      // Set default content when no match is found
-      setServiceContent({
-        title: `Vijay Home Services - Professional Home Solutions for a Better Living`,
-        description: [
-            `Vijay Home Services offers a wide range of professional home solutions designed to make your living space more comfortable, clean, and well-maintained. From deep cleaning and pest control to painting and general repairs, we provide expert services tailored to meet the unique needs of your home. Our team of skilled professionals uses high-quality, eco-friendly products and advanced tools to ensure outstanding results every time. With affordable pricing, flexible scheduling, and customer-first support, Vijay Home Services is your trusted partner for all your home service needs. Whether it's a one-time project or regular maintenance, we deliver reliable, efficient, and hassle-free solutions.`,
-        ],
-        contentkey1: `Benefits of Choosing Vijay Home Services`,
-        contentlist1: [
-          `Convenience: A one-stop solution for all home services, including cleaning, pest control, painting, repairs, and more.`,
-          `Quality Assurance: Skilled professionals and high-quality standards ensure satisfaction with every service.`,
-          `Eco-Friendly & Safe: We use non-toxic, government-approved chemicals and eco-friendly materials for safety and environmental care.`,
-          `Affordable Pricing: With up to 60% discounts on selected services, our pricing is transparent and competitive.`,
-          `End-to-End Solutions: From pre-assessment to post-service checks, we handle every detail, ensuring a hassle-free experience.`
-          
-        ],
-        contentkey2: `Why Choose Vijay Home Services?`,
-        contentlist2: [
-            `Vijay Home Services is known for reliability, quality, and efficiency across all home maintenance needs. Our team of certified professionals brings expertise and attention to detail to each service, whether it’s a quick fix or a major project. With a customer-first approach, we prioritize your needs to provide customized services that keep your home comfortable, clean, and in optimal condition.`,
-            
-        ],
-        contentkey3: `How Our Process Works`,
-        contentlist3: [
-            `1. Book Your Service: Call us at 8453748478 or book online at your preferred time.`,
-            `2. Needs Assessment: We assess your requirements and tailor our services to meet your expectations.`,
-            `3. Execution by Experts: Trained professionals arrive on time, equipped with the latest tools and techniques to complete the job efficiently.`,
-            `4. Quality Check: A thorough quality check ensures all work is up to standard, and any concerns are promptly addressed.`,
-            `5. After-Service Support: For any follow-ups or maintenance, we’re here to assist you with ongoing care.`
-
-            
-        ],
-        contentkey4: "How Our Process Works",
-        contentlist4: [
-            "Request a Service: Book our home cleaning service through our website or by phone.",
-            "Receive Confirmation: We’ll send a quote and confirm details based on your needs.",
-            "Execution: Our team arrives on time, fully equipped to provide a thorough, efficient experience.",
-            "Easy Payment: We accept multiple payment methods for your convenience."
-        ],
-        contentkey5: `For reliable, efficient, and affordable home services, reach out to Vijay Home Services at 8453748478. With a broad spectrum of services, including home cleaning, pest control, painting, repairs, and more, we are here to make home maintenance easy and accessible.`
-      });
-    }
-  }, [subcategory, serviceSlug, locationSlug, contentMapping]);
-
-
-  if (serviceContent === null) {
-    return <div>Loading or No content found for {subcategory}</div>;
-  }
-  console.log('services:', serviceContent);
-
-
-
-    
   return (
     <div>
-       <Helmet>
-        <title>{metaTitle}</title>
-        <meta name="description" content={metaDescription} />
-        <meta name="keywords" content={metaKeywords} />
-        <link rel="canonical" href={`https://www.vijayhomeservices.com${url}`} />
-      </Helmet> 
-
       {isLoading ? (
         <>
           <div className="row m-auto text-center" style={{ height: "100vh" }}>
@@ -1108,7 +1098,7 @@ console.log('services:', locationSlug);
                             <div
                               key={index}
                               className="col-md-4 mt-4 subcat-row text-center"
-                              onClick={() => scrollToService(index + 1)}
+                              onClick={() => scrollToService(index)}
                               style={{ cursor: "pointer" }}
                             >
                               <img
@@ -1208,8 +1198,12 @@ console.log('services:', locationSlug);
 
                           <div style={{ marginLeft: "40px" }}>
                             <a
-                               href={`https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon.%20${encodeURIComponent(
-                                currentURL
+                              // href="https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon"
+                              // href={`https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon.%20${encodeURIComponent(
+                              //   currentURL
+                              // )}`}
+                              href={`https://wa.me/919611600990?text=${encodeURIComponent(
+                                `Hi, I'm looking for the services related to ${sub}. Please reach out to me soon. URL: ${currentURL}`
                               )}`}
                               style={{
                                 textDecoration: "none",
@@ -1296,7 +1290,7 @@ console.log('services:', locationSlug);
                     className="row mt-2"
                     style={{ justifyContent: "space-between" }}
                   >
-                    {subcategoryData
+                    {calculatedPrices
                       .sort((a, b) => parseInt(a.order) - parseInt(b.order))
                       .map((data, index) => (
                         <div className="d-flex">
@@ -1514,30 +1508,36 @@ console.log('services:', locationSlug);
                                       fontWeight: "bold",
                                     }}
                                   >
-                                    View price
+                                    View details
                                   </div>
                                 </Link>
                               </div>
 
                               <div className="col-md-3 mt-4 mb-3 ">
                                 {data.category === "Painting" ? (
-                                  <div
-                                   
-                                    className="poppins-regular mx-4"
-                                    style={{
-                                      color: "blue",
-                                      fontSize: "14px",
-                                      fontWeight: "bold",
-                                      cursor: "pointer",
-                                      backgroundColor: "white",
-                                      color: "white",
-                                      textAlign: "center",
-                                      padding: "3px",
-                                      borderRadius: "5px",
-                                    }}
-                                  >
-                                    
-                                  </div>
+                                  // <div
+                                  //   // onClick={handleenquiryShow}
+                                  //   onClick={() => {
+                                  //     setSelectedServiceName(data.serviceName);
+                                  //     setserviceamount(data.lowestPrice);
+                                  //     handleenquiryShow();
+                                  //   }}
+                                  //   className="poppins-regular mx-4"
+                                  //   style={{
+                                  //     color: "blue",
+                                  //     fontSize: "14px",
+                                  //     fontWeight: "bold",
+                                  //     cursor: "pointer",
+                                  //     backgroundColor: "darkred",
+                                  //     color: "white",
+                                  //     textAlign: "center",
+                                  //     padding: "3px",
+                                  //     borderRadius: "5px",
+                                  //   }}
+                                  // >
+                                  //   Free Quote
+                                  // </div>
+                                  <></>
                                 ) : (
                                   <div
                                     onClick={vhandleShow}
@@ -1578,14 +1578,18 @@ console.log('services:', locationSlug);
                                     backgroundColor: "darkred",
                                     textAlign: "center",
 
-                                    padding: "4px 10px",
+                                    padding: "4px",
                                     borderRadius: "10px",
-                                    width: "80%",
+                                    width: "50%",
                                     marginTop: "-25px",
                                     cursor: "pointer",
                                   }}
                                   // onClick={() => {
-                                  //   if (data.morepriceData.length > 0) {
+                                  //   if (data.category === "Painting") {
+                                  //     setenquiryshow(true);
+                                  //     setSelectedServiceName(data.serviceName);
+                                  //     setserviceamount(data.lowestPrice);
+                                  //   } else if (data.morepriceData.length > 0) {
                                   //     handleBook(data);
                                   //   } else {
                                   //     navigate("/ESpage", {
@@ -1594,19 +1598,33 @@ console.log('services:', locationSlug);
                                   //   }
                                   // }}
                                   onClick={() => {
-                                    if (data.category === "Painting") {
-                                      setenquiryshow(true);
-                                      setSelectedServiceName(data.serviceName);
-                                    } else if (data.morepriceData.length > 0) {
-                                      handleBook(data);
+                                    const user = localStorage.getItem("user");
+
+                                    if (!user) {
+                                      setShowLoginModal(true);
                                     } else {
-                                      navigate("/ESpage", {
-                                        state: { sdata: data, city: city },
-                                      });
+                                      if (data.category === "Painting") {
+                                        setenquiryshow(true);
+                                        setSelectedServiceName(
+                                          data.serviceName
+                                        );
+                                        setserviceamount(data.lowestPrice);
+                                      } else if (
+                                        data.morepriceData.length > 0
+                                      ) {
+                                        handleBook(data);
+                                      } else {
+                                        navigate("/ESpage", {
+                                          state: { sdata: data, city: city },
+                                        });
+                                      }
                                     }
                                   }}
                                 >
-                                   {data.category === "Painting" ? "Get Free Estimate" : "Add"}
+                                  {/* Add */}
+                                  {data.category === "Painting"
+                                    ? "Get Free Estimate"
+                                    : "Add"}
                                 </div>
                               </div>
                             </div>
@@ -1614,74 +1632,7 @@ console.log('services:', locationSlug);
                         </div>
                       ))}
                   </div>
-                  <div className="content-mapping">
-            <h4>{serviceContent.title}</h4>
-            
-            {/* Description */}
-            {serviceContent.description.map((para, index) => (
-                <p key={`description-${index}`}>{para}</p>
-            ))}
 
-            {/* Health Benefits */}
-            <h6>{serviceContent.contentkey1}</h6>
-            {serviceContent.contentlist1.map((para, index) => (
-                <p key={`content-list-1-${index}`}>{para}</p>
-            ))}
-
-            {/* Why Choose Us */}
-            <h6>{serviceContent.contentkey2}</h6>
-            <ul>
-                {serviceContent.contentlist2.map((item, index) => (
-                    <li key={`content-list-2-${index}`}>{item}</li>
-                ))}
-            </ul>
-
-            {/* Benefits of Choosing Vijay Home Services */}
-            <h6>{serviceContent.contentkey3}</h6>
-            <ul>
-                {serviceContent.contentlist3.map((benefit, index) => (
-                    <li key={`content-list-3-${index}`}>{benefit}</li>
-                ))}
-            </ul>
-
-            {/* How Our Process Works */}
-            <h6>{serviceContent.contentkey4}</h6>
-            <ul>
-                {serviceContent.contentlist4.map((step, index) => (
-                    <li key={`content-list-4-${index}`}>{step}</li>
-                ))}
-            </ul>
-
-            {/* Conclusion */}
-            <h6>{serviceContent.contentkey5}</h6>
-            {serviceContent.contentlist5 && serviceContent.contentlist5.length > 0 && (
-    <ul>
-        {serviceContent.contentlist5.map((step, index) => (
-            <li key={`content-list-5-${index}`}>{step}</li>
-        ))}
-    </ul>
-    
-)}
- <h6>{serviceContent.contentkey6}</h6>
-            {serviceContent.contentlist6 && serviceContent.contentlist6.length > 0 && (
-            <ul>
-                 {serviceContent.contentlist6.map((step, index) => (
-                  <li key={`content-list-6-${index}`}>{step}</li>
-                    ))}
-             </ul>
-            )}
-
-            <h6>{serviceContent.contentkey7}</h6>
-            {serviceContent.contentlist7 && serviceContent.contentlist7.length > 0 && (
-            <ul>
-                 {serviceContent.contentlist7.map((step, index) => (
-                  <li key={`content-list-7-${index}`}>{step}</li>
-                    ))}
-             </ul>
-            )}
-        </div>
-
-  
                   <div
                     className="row mt-5 mb-5 "
                     style={{
@@ -1785,8 +1736,12 @@ console.log('services:', locationSlug);
                       </a>
 
                       <a
-                         href={`https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon.%20${encodeURIComponent(
-                          currentURL
+                        // href="https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon"
+                        // href={`https://wa.me/919611600990?text=Hi%20I'm%20looking%20for%20the%20services%20from%20you,%20Please%20reach%20out%20to%20me%20soon.%20${encodeURIComponent(
+                        //   currentURL
+                        // )}`}
+                        href={`https://wa.me/919611600990?text=${encodeURIComponent(
+                          `Hi, I'm looking for the services related to ${sub}. Please reach out to me soon. URL: ${currentURL}`
                         )}`}
                         style={{
                           textDecoration: "none",
@@ -1879,7 +1834,8 @@ console.log('services:', locationSlug);
                         <div
                           key={index}
                           className="col-3 text-center"
-                          onClick={() => scrollToService(index + 1)}
+                          // onClick={() => scrollToService1(index + 1)}
+                          onClick={() => scrollToService(index)}
                           style={{ cursor: "pointer" }}
                         >
                           <img
@@ -1910,7 +1866,7 @@ console.log('services:', locationSlug);
                     className="row mt-2"
                     style={{ justifyContent: "space-between" }}
                   >
-                    {subcategoryData
+                    {calculatedPrices
                       .sort((a, b) => parseInt(a.order) - parseInt(b.order))
                       .map((data, index) => (
                         <div className="d-flex">
@@ -2128,34 +2084,36 @@ console.log('services:', locationSlug);
                                       fontWeight: "bold",
                                     }}
                                   >
-                                    View price
+                                    View details
                                   </div>
                                 </Link>
                               </div>
 
                               <div className="col-md-3 mt-4 mb-3 ">
                                 {data.category === "Painting" ? (
-                                  <div
-                                   // onClick={handleenquiryShow}
-                                   onClick={() => {
-                                    setSelectedServiceName(data.serviceName); // Set the selected service name
-                                    handleenquiryShow(); // Open the modal
-                                  }}
-                                    className="poppins-regular mx-4"
-                                    style={{
-                                      color: "blue",
-                                      fontSize: "14px",
-                                      fontWeight: "bold",
-                                      cursor: "pointer",
-                                      backgroundColor: "white",
-                                      color: "white",
-                                      textAlign: "center",
-                                      padding: "3px",
-                                      borderRadius: "5px",
-                                    }}
-                                  >
-                                    
-                                  </div>
+                                  // <div
+                                  //   // onClick={handleenquiryShow}
+                                  //   onClick={() => {
+                                  //     setSelectedServiceName(data.serviceName); // Set the selected service name
+                                  //     setserviceamount(data.lowestPrice);
+                                  //     handleenquiryShow(); // Open the modal
+                                  //   }}
+                                  //   className="poppins-regular mx-4"
+                                  //   style={{
+                                  //     color: "blue",
+                                  //     fontSize: "14px",
+                                  //     fontWeight: "bold",
+                                  //     cursor: "pointer",
+                                  //     backgroundColor: "darkred",
+                                  //     color: "white",
+                                  //     textAlign: "center",
+                                  //     padding: "3px",
+                                  //     borderRadius: "5px",
+                                  //   }}
+                                  // >
+                                  //   Free Quote
+                                  // </div>
+                                  <></>
                                 ) : (
                                   <div
                                     onClick={vhandleShow}
@@ -2175,72 +2133,92 @@ console.log('services:', locationSlug);
                           </div>
                           <div className="col-md-6 mt-4 mx-2 servicedata_row">
                             <div className="">
-                            <img
-  className="mb-2 servicedata_img"
-  alt={`${data.category} images`}
-  src={data.imglink}
-/>
-<div
-  style={{
-    width: "100%",  // Full width container
-    display: "flex",
-    justifyContent: "center",  // Center horizontally
-    alignItems: "center",
-    position: "relative"  // For absolute positioning of child
-  }}
->
-<style>
-  {`
-    .estimate-button {
-      font-size: 9px !important;
-      padding: 4px 12px !important;
-      width: fit-content !important;
-      min-width: unset !important;
-    }
-  `}
-</style>
-  <div
-    className="poppins-black estimate-button"
-    style={{
-      color: "white",
-      backgroundColor: "darkred",
-      textAlign: "center",
-      padding: "4px 8px",
-      borderRadius: "10px",
-      width: "auto",
-      minWidth: "130px",
-      marginTop: "-5px",
-      cursor: "pointer",
-      display: "inline-block",
-      whiteSpace: "nowrap",
-      position: "absolute",  // Position absolutely
-      left: "50%",  // Center horizontally
-      transform: "translateX(-50%)",  // Offset by half width
-      fontSize: "11px" 
-    }}
-    onClick={() => {
-      if (data.category === "Painting") {
-        setenquiryshow(true);
-        setSelectedServiceName(data.serviceName);
-      
-    } else if (data.morepriceData.length > 0) {
-      handleBook(data);
-    } else {
-      navigate("/ESpage", {
-        state: { sdata: data, city: city },
-      });
-    }
-    }}
-  >
-     {data.category === "Painting" ? "Get Free Estimate" : "Add"}
-  </div>
-</div>
+                              <img
+                                className="mb-2 servicedata_img"
+                                alt={`${data.category} images`}
+                                src={data.imglink}
+                              />
+                              <div
+                                className=""
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <div
+                                  className=""
+                                  style={{
+                                    color: "white",
+                                    fontSize: "10px",
+                                    backgroundColor: "darkred",
+                                    textAlign: "center",
+                                    padding: "4px",
+                                    borderRadius: "10px",
+                                    width: "50%",
+                                    marginTop: "-25px",
+                                    cursor: "pointer",
+                                    fontWeight: "bold",
+                                    // fontFamily: "poppins",
+                                  }}
+                                  // onClick={() => {
+                                  //   if (data.morepriceData.length > 0) {
+                                  //     handleBook(data);
+                                  //   } else {
+                                  //     navigate("/ESpage", {
+                                  //       state: { sdata: data, city: city },
+                                  //     });
+                                  //   }
+                                  // }}
+                                  // onClick={() => {
+                                  //   if (data.category === "Painting") {
+                                  //     setenquiryshow(true);
+                                  //     setSelectedServiceName(data.serviceName);
+                                  //     setserviceamount(data.lowestPrice);
+                                  //   } else if (data.morepriceData.length > 0) {
+                                  //     handleBook(data);
+                                  //   } else {
+                                  //     navigate("/ESpage", {
+                                  //       state: { sdata: data, city: city },
+                                  //     });
+                                  //   }
+                                  // }}
+                                  onClick={() => {
+                                    const user = localStorage.getItem("user");
+
+                                    if (!user) {
+                                      setShowLoginModal(true);
+                                    } else {
+                                      if (data.category === "Painting") {
+                                        setenquiryshow(true);
+                                        setSelectedServiceName(
+                                          data.serviceName
+                                        );
+                                        setserviceamount(data.lowestPrice);
+                                      } else if (
+                                        data.morepriceData.length > 0
+                                      ) {
+                                        handleBook(data);
+                                      } else {
+                                        navigate("/ESpage", {
+                                          state: { sdata: data, city: city },
+                                        });
+                                      }
+                                    }
+                                  }}
+                                >
+                                  {/* Add */}
+                                  {data.category === "Painting"
+                                    ? "Get Free Estimate"
+                                    : "Add"}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
                       ))}
                   </div>
-                  
+
                   <div
                     className="row mt-5 mb-5"
                     style={{
@@ -2672,47 +2650,45 @@ console.log('services:', locationSlug);
                   })}
                 </Modal.Body>
                 <Modal.Footer className="container p-3 ">
-                {
-  Array.isArray(serviceData) && serviceData.length > 0 ? (
-    serviceData.flatMap((service) =>
-      service.morepriceData
-        .filter((plan) => plan._id === SelectService)
-        .map((price) => (
-          <Button
-            className="col-md-10 m-auto clrstrs"
-            onClick={() => {
-              setOpenViewCartModal(false);
-            }}
-          >
-            <Link
-              to="/ViewCart"
-              state={{
-                ServiceIDD: service._id,
-                PriceID: price._id,
-                NumberOfQunt: Quantity,
-              }}
-              style={{
-                textDecoration: "none",
-                color: "white",
-                border: "none",
-              }}
-            >
-              <p className="row p-1 m-auto">
-                <span className="col-md-6 m-auto p-0">
-                  View Cart
-                </span>
-                <span className="col-md-6 m-auto p-0">
-                  Rs.{price.pofferprice}
-                </span>
-              </p>
-            </Link>
-          </Button>
-        ))
-    )
-  ) : (
-    <p>No services available</p>
-  )
-}
+                  {serviceData.flatMap((service) =>
+                    service.morepriceData
+                      .filter((plan) => plan._id === SelectService)
+
+                      .map((price) => (
+                        <Button
+                          className="col-md-10 m-auto clrstrs"
+                          onClick={() => {
+                            // e.preventDefault();
+                            setOpenViewCartModal(false);
+                          }}
+                        >
+                          {" "}
+                          <Link
+                            to="/ViewCart"
+                            state={{
+                              ServiceIDD: service._id,
+                              PriceID: price._id,
+                              NumberOfQunt: Quantity,
+                            }}
+                            style={{
+                              textDecoration: "none",
+                              color: "white",
+                              border: "none",
+                            }}
+                          >
+                            <p className="row p-1 m-auto">
+                              <span className="col-md-6 m-auto p-0">
+                                View Cart
+                              </span>
+                              <span className="col-md-6 m-auto p-0">
+                                {" "}
+                                Rs.{price.pofferprice}
+                              </span>
+                            </p>
+                          </Link>
+                        </Button>
+                      ))
+                  )}
                 </Modal.Footer>
               </Modal>
 
@@ -3027,8 +3003,10 @@ console.log('services:', locationSlug);
                   </div>
 
                   <div
-                    //onClick={addsurvey}
-                    onClick={(e) => addsurvey(e, selectedServiceName)}
+                    // onClick={addsurvey}
+                    onClick={(e) =>
+                      addsurvey(e, selectedServiceName, serviceamount)
+                    }
                     className="poppins-black"
                     style={{
                       backgroundColor: "darkred",
@@ -3045,14 +3023,185 @@ console.log('services:', locationSlug);
                   </div>
                 </Modal.Body>
               </Modal>
+
+              {/* Login Modal */}
+
+              <Modal
+                show={showLoginModal}
+                centered
+                onHide={() => setShowLoginModal(false)} // Close modal
+                style={{ borderRadius: "10px" }}
+              >
+                <Modal.Body
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "30px",
+                  }}
+                >
+                  <div style={{ width: "100%", maxWidth: "400px" }}>
+                    <div
+                      className="poppins-light"
+                      style={{
+                        marginBottom: "10px",
+                        fontSize: "16px",
+                        color: "black",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Enter mobile number to continue
+                    </div>
+                    {/* <input
+                      type="text"
+                      value={customername}
+                      onChange={(e) => setcustomername(e.target.value)}
+                      placeholder="Enter Name"
+                      style={{
+                        border: "1px solid grey",
+                        height: "45px",
+                        width: "100%",
+                        marginTop: "15px",
+                      }}
+                    /> */}
+
+                    <input
+                      type="text"
+                      value={mainContact}
+                      onChange={(e) => setmainContact(e.target.value)}
+                      placeholder="Enter Mobile Number"
+                      style={{
+                        border: "1px solid grey",
+                        height: "45px",
+                        width: "100%",
+                      }}
+                    />
+                    <div
+                      onClick={sendOTP}
+                      style={{
+                        backgroundColor: "#ff465e",
+                        color: "white",
+                        textAlign: "center",
+                        padding: "10px",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {loading ? "Loading...." : "Continue"}
+                    </div>
+                    <div
+                      style={{
+                        textAlign: "center",
+                        marginTop: "20px",
+                        fontSize: "14px",
+                        color: "#999",
+                      }}
+                    >
+                      Why to choose{" "}
+                      <span
+                        className="poppins-regular"
+                        style={{ color: "darkred" }}
+                      >
+                        Our Services?
+                      </span>
+                      <ul
+                        style={{
+                          listStyle: "none",
+                          padding: 0,
+                          marginTop: "10px",
+                        }}
+                      >
+                        <li
+                          style={{
+                            marginBottom: "5px",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <i
+                            className="fa fa-check-circle"
+                            style={{ color: "green", marginRight: "5px" }}
+                          ></i>
+                          Lowest Price Guaranteed
+                        </li>
+                        <li
+                          style={{
+                            marginBottom: "5px",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <i
+                            className="fa fa-check-circle"
+                            style={{ color: "green", marginRight: "5px" }}
+                          ></i>
+                          Free Reschedule
+                        </li>
+                        <li
+                          style={{
+                            marginBottom: "5px",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <i
+                            className="fa fa-check-circle"
+                            style={{ color: "green", marginRight: "5px" }}
+                          ></i>
+                          5 Star Rated Partners
+                        </li>
+                        <li
+                          style={{
+                            marginBottom: "5px",
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <i
+                            className="fa fa-check-circle"
+                            style={{ color: "green", marginRight: "5px" }}
+                          ></i>
+                          Dedicated Customer Support
+                        </li>
+                      </ul>
+                    </div>
+                    {/* <div
+                      className="poppins-regular"
+                      style={{
+                        textAlign: "center",
+                        fontSize: "12px",
+                        color: "#999",
+                        marginTop: "10px",
+                      }}
+                    >
+                      By continuing, you agree to our{" "}
+                      <a
+                        href="/terms-and-condition"
+                        className="poppins-regular"
+                        style={{ color: "blue" }}
+                      >
+                        Terms & Conditions
+                      </a>
+                      and agree to updates on{" "}
+                      <span
+                        className="poppins-regular"
+                        style={{ color: "green" }}
+                      >
+                        WhatsApp
+                      </span>
+                      .
+                    </div> */}
+                  </div>
+                </Modal.Body>
+              </Modal>
             </div>
           )}
         </>
       )}
-
     </div>
   );
 }
-
 
 export default Subcategory;

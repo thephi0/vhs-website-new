@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import thankyou from "../../src/assests/thankyou.png";
 import { Button } from "react-bootstrap";
-import { useLoadScript } from '@react-google-maps/api';
 
 function Thankyou() {
   useEffect(() => {
